@@ -1,0 +1,1272 @@
+[
+  {
+    "id": "round-01",
+    "title": "Round 01",
+    "emoji": "🥊",
+    "focus": "DDL, DML and student records",
+    "sections": [
+      {
+        "id": "r1-schema",
+        "title": "Table creation & schema changes",
+        "tasks": [
+          {
+            "id": "r1-01",
+            "title": "Create STUDENT",
+            "prompt": "Create a table named STUDENT with fields: student_id (number), name (varchar), dob (date), and email (varchar)."
+          },
+          {
+            "id": "r1-02",
+            "title": "Create COURSE",
+            "prompt": "Create a table named COURSE with fields: course_id, course_name, credits, and duration."
+          },
+          {
+            "id": "r1-03",
+            "title": "Add a student phone number",
+            "prompt": "Alter the STUDENT table to add a column phone_number (varchar)."
+          },
+          {
+            "id": "r1-04",
+            "title": "Rename the student email column",
+            "prompt": "Rename the column email in the STUDENT table to student_email."
+          },
+          {
+            "id": "r1-05",
+            "title": "Drop COURSE",
+            "prompt": "Drop the COURSE table."
+          },
+          {
+            "id": "r1-06",
+            "title": "Create RESULT",
+            "prompt": "Create a table named RESULT with fields: result_id, student_id, course_id, marks, and grade."
+          },
+          {
+            "id": "r1-07",
+            "title": "Create TEACHER",
+            "prompt": "Create a table named TEACHER with fields: teacher_id (number), name (varchar), subject (varchar), and salary (number)."
+          },
+          {
+            "id": "r1-08",
+            "title": "Create ENROLLMENT",
+            "prompt": "Create a table named ENROLLMENT with fields: enrollment_id, student_id, course_id, and enroll_date."
+          },
+          {
+            "id": "r1-09",
+            "title": "Drop ENROLLMENT",
+            "prompt": "Drop the ENROLLMENT table."
+          },
+          {
+            "id": "r1-10",
+            "title": "Create LIBRARY",
+            "prompt": "Create a table named LIBRARY with fields: book_id, title, author, isbn, and available_copies."
+          },
+          {
+            "id": "r1-11",
+            "title": "Add teacher email",
+            "prompt": "Alter the TEACHER table to add a column email (varchar)."
+          },
+          {
+            "id": "r1-12",
+            "title": "Rename teacher name column",
+            "prompt": "Rename the column name in the TEACHER table to teacher_name."
+          },
+          {
+            "id": "r1-13",
+            "title": "Drop TEACHER subject",
+            "prompt": "Drop the column subject from the TEACHER table."
+          },
+          {
+            "id": "r1-14",
+            "title": "Modify LIBRARY ISBN type",
+            "prompt": "Alter the LIBRARY table to modify the data type of isbn from number to varchar."
+          }
+        ]
+      },
+      {
+        "id": "r1-dml",
+        "title": "Insert, update & delete",
+        "tasks": [
+          {
+            "id": "r1-15",
+            "title": "Insert COURSE records",
+            "prompt": "Insert 3 records into the COURSE table with sample data."
+          },
+          {
+            "id": "r1-16",
+            "title": "Insert TEACHER records",
+            "prompt": "Insert 4 records into the TEACHER table."
+          },
+          {
+            "id": "r1-17",
+            "title": "Update student phone by ID",
+            "prompt": "Update the phone_number of a student in the STUDENT table where student_id = 1."
+          },
+          {
+            "id": "r1-18",
+            "title": "Delete student by ID",
+            "prompt": "Delete a record from the STUDENT table where student_id = 2."
+          },
+          {
+            "id": "r1-19",
+            "title": "Insert STUDENT records",
+            "prompt": "Insert 5 records into the STUDENT table."
+          },
+          {
+            "id": "r1-20",
+            "title": "Update a specific student phone",
+            "prompt": "Update the phone_number of a specific student using their student_id."
+          },
+          {
+            "id": "r1-21",
+            "title": "Delete student named Amit",
+            "prompt": "Delete one record from the STUDENT table where name = 'Amit'."
+          }
+        ]
+      },
+      {
+        "id": "r1-student-set",
+        "title": "STUDENT table · 25-record assignment",
+        "tasks": [
+          {
+            "id": "r1-22-setup",
+            "title": "Create STUDENT and add 25 records",
+            "prompt": "Create the STUDENT table and add 25 records before working through the queries below.\n\nColumn definitions:\n• student_id INT — Primary Key\n• name VARCHAR(50) — Student Name\n• dob DATE — Date of Birth\n• course VARCHAR(30) — Course Name\n• marks INT — Total Marks"
+          },
+          {
+            "id": "r1-22-q1",
+            "title": "Q1 · Insert Anjali",
+            "prompt": "Insert a record with: student_id = 101, name = 'Anjali', dob = '2004-06-15', course = 'BCA', marks = 450."
+          },
+          {
+            "id": "r1-22-q2",
+            "title": "Q2 · Insert three students",
+            "prompt": "Insert 3 more student records with different values for each column."
+          },
+          {
+            "id": "r1-22-q3",
+            "title": "Q3 · Insert only ID and name",
+            "prompt": "Insert a student record with only student_id and name; set the other fields to NULL."
+          },
+          {
+            "id": "r1-22-q4",
+            "title": "Q4 · Update marks",
+            "prompt": "Update the marks of the student with student_id = 101 to 480."
+          },
+          {
+            "id": "r1-22-q5",
+            "title": "Q5 · Change BCA to BSc IT",
+            "prompt": "Change the course of all students currently enrolled in 'BCA' to 'BSc IT'."
+          },
+          {
+            "id": "r1-22-q6",
+            "title": "Q6 · Add marks to lower scores",
+            "prompt": "Increase marks by 10 for all students who have scored less than 400."
+          },
+          {
+            "id": "r1-22-q7",
+            "title": "Q7 · Update Anjali date of birth",
+            "prompt": "Update the date of birth for the student named 'Anjali' to '2004-07-01'."
+          },
+          {
+            "id": "r1-22-q8",
+            "title": "Q8 · Delete student 103",
+            "prompt": "Delete the student record where student_id = 103."
+          },
+          {
+            "id": "r1-22-q9",
+            "title": "Q9 · Delete BBA students",
+            "prompt": "Delete all records of students enrolled in the course 'BBA'."
+          },
+          {
+            "id": "r1-22-q10",
+            "title": "Q10 · Delete low-mark records",
+            "prompt": "Delete all student records where marks are less than 300."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "round-02",
+    "title": "Round 02",
+    "emoji": "🥊",
+    "focus": "Filtering, sorting and aggregate queries",
+    "sections": [
+      {
+        "id": "r2-employee",
+        "title": "EMPLOYEE table & queries",
+        "tasks": [
+          {
+            "id": "r2-emp-setup",
+            "title": "Create EMPLOYEE",
+            "prompt": "Create the EMPLOYEE table:\n• emp_id INT — Employee ID (Primary Key)\n• name VARCHAR(50) — Employee Name\n• department VARCHAR(30) — Department Name\n• salary DECIMAL(10,2) — Salary\n• join_date DATE — Joining Date"
+          },
+          {
+            "id": "r2-emp-q1",
+            "title": "Q1 · Employees in HR",
+            "prompt": "Display all records of employees who work in the 'HR' department."
+          },
+          {
+            "id": "r2-emp-q2",
+            "title": "Q2 · Salary above 50,000",
+            "prompt": "Show the details of employees whose salary is greater than 50,000."
+          },
+          {
+            "id": "r2-emp-q3",
+            "title": "Q3 · Joined after 2023-01-01",
+            "prompt": "Retrieve the name and salary of employees who joined after '2023-01-01'."
+          },
+          {
+            "id": "r2-emp-q4",
+            "title": "Q4 · IT or Sales employees",
+            "prompt": "Display employee names where the department is either 'IT' or 'Sales'."
+          },
+          {
+            "id": "r2-emp-q5",
+            "title": "Q5 · Salary range",
+            "prompt": "Show the details of employees whose salary is between 40,000 and 70,000."
+          },
+          {
+            "id": "r2-emp-q6",
+            "title": "Q6 · Salary ascending",
+            "prompt": "List all employees sorted by their salary in ascending order."
+          },
+          {
+            "id": "r2-emp-q7",
+            "title": "Q7 · Names and departments",
+            "prompt": "Retrieve employee names and departments, sorted by name alphabetically."
+          },
+          {
+            "id": "r2-emp-q8",
+            "title": "Q8 · Latest joining date first",
+            "prompt": "Show all employee details ordered by joining date, latest first."
+          },
+          {
+            "id": "r2-emp-q9",
+            "title": "Q9 · IT salaries descending",
+            "prompt": "List employees of the IT department sorted by salary in descending order."
+          },
+          {
+            "id": "r2-emp-q10",
+            "title": "Q10 · Maximum salary",
+            "prompt": "Find the maximum salary among all departments."
+          },
+          {
+            "id": "r2-emp-q11",
+            "title": "Q11 · Minimum Finance salary",
+            "prompt": "Find the minimum salary of employees in the 'Finance' department."
+          },
+          {
+            "id": "r2-emp-q12",
+            "title": "Q12 · Employees who joined in 2024",
+            "prompt": "Count how many employees joined in the year 2024."
+          },
+          {
+            "id": "r2-emp-q13",
+            "title": "Q13 · Employee count by department",
+            "prompt": "Display the number of employees in each department."
+          },
+          {
+            "id": "r2-emp-q14",
+            "title": "Q14 · Average salary by department",
+            "prompt": "Find the average salary for each department."
+          },
+          {
+            "id": "r2-emp-q15",
+            "title": "Q15 · Salary expense by department",
+            "prompt": "Show the total salary expense for each department."
+          },
+          {
+            "id": "r2-emp-q16",
+            "title": "Q16 · Departments with average salary > 60,000",
+            "prompt": "List departments where the average salary is more than 60,000."
+          },
+          {
+            "id": "r2-emp-q17",
+            "title": "Q17 · Highest salary in each department",
+            "prompt": "Find the highest salary in each department."
+          }
+        ]
+      },
+      {
+        "id": "r2-student",
+        "title": "STUDENT table & queries",
+        "tasks": [
+          {
+            "id": "r2-student-setup",
+            "title": "Create STUDENT",
+            "prompt": "Create the STUDENT table:\n• student_id INT — Student ID (Primary Key)\n• name VARCHAR(50) — Student Name\n• department VARCHAR(30) — Department Name\n• marks INT — Total Marks\n• age INT — Student Age"
+          },
+          {
+            "id": "r2-student-q1",
+            "title": "Q1 · Student names and marks",
+            "prompt": "Retrieve the names and marks of all students."
+          },
+          {
+            "id": "r2-student-q2",
+            "title": "Q2 · Computer department",
+            "prompt": "Display all students from the Computer department."
+          },
+          {
+            "id": "r2-student-q3",
+            "title": "Q3 · Marks above 75",
+            "prompt": "List students who scored more than 75 marks."
+          },
+          {
+            "id": "r2-student-q4",
+            "title": "Q4 · Sort by marks descending",
+            "prompt": "Show all students ordered by marks in descending order."
+          },
+          {
+            "id": "r2-student-q5",
+            "title": "Q5 · Names starting with A",
+            "prompt": "List students whose name starts with 'A'."
+          },
+          {
+            "id": "r2-student-q6",
+            "title": "Q6 · Average marks",
+            "prompt": "Display the average marks of students using the AVG() function."
+          },
+          {
+            "id": "r2-student-q7",
+            "title": "Q7 · Count by department",
+            "prompt": "Show the number of students in each department using GROUP BY."
+          },
+          {
+            "id": "r2-student-q8",
+            "title": "Q8 · Departments with more than three students",
+            "prompt": "Retrieve departments having more than 3 students using the HAVING clause."
+          },
+          {
+            "id": "r2-student-q9",
+            "title": "Q9 · Sort by department, then marks",
+            "prompt": "Display student details ordered by department name and then by marks."
+          },
+          {
+            "id": "r2-student-q10",
+            "title": "Q10 · Maximum IT marks",
+            "prompt": "Find the maximum marks obtained by any student in the IT department."
+          }
+        ]
+      },
+      {
+        "id": "r2-product",
+        "title": "PRODUCT table & queries",
+        "tasks": [
+          {
+            "id": "r2-product-setup",
+            "title": "Create PRODUCT",
+            "prompt": "Create the PRODUCT table:\n• product_id INT — Product ID (Primary Key)\n• name VARCHAR(50) — Product Name\n• category VARCHAR(30) — Product Category\n• price DECIMAL(10,2) — Product Price\n• stock INT — Quantity in Stock"
+          },
+          {
+            "id": "r2-product-q1",
+            "title": "Q1 · Product names and prices",
+            "prompt": "Retrieve the names and prices of all products."
+          },
+          {
+            "id": "r2-product-q2",
+            "title": "Q2 · Stock below 50",
+            "prompt": "Display all products where stock is less than 50."
+          },
+          {
+            "id": "r2-product-q3",
+            "title": "Q3 · Electronics products",
+            "prompt": "Show all products in the 'Electronics' category."
+          },
+          {
+            "id": "r2-product-q4",
+            "title": "Q4 · Sort products by price",
+            "prompt": "List products ordered by price in ascending order."
+          },
+          {
+            "id": "r2-product-q5",
+            "title": "Q5 · Total stock",
+            "prompt": "Find the total stock of all products using SUM()."
+          },
+          {
+            "id": "r2-product-q6",
+            "title": "Q6 · Minimum and maximum price",
+            "prompt": "Show the minimum and maximum price among all products."
+          },
+          {
+            "id": "r2-product-q7",
+            "title": "Q7 · Product count by category",
+            "prompt": "Count how many products are there in each category using GROUP BY."
+          },
+          {
+            "id": "r2-product-q8",
+            "title": "Q8 · Categories with stock over 100",
+            "prompt": "Retrieve categories having total stock greater than 100 using HAVING."
+          },
+          {
+            "id": "r2-product-q9",
+            "title": "Q9 · Top three most expensive",
+            "prompt": "Display the top 3 most expensive products."
+          },
+          {
+            "id": "r2-product-q10",
+            "title": "Q10 · Grocery products above 100",
+            "prompt": "List all products in the 'Grocery' category with a price above 100, ordered by stock."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "round-03",
+    "title": "Round 03",
+    "emoji": "🥊",
+    "focus": "Constraints, joins, functions and advanced queries",
+    "sections": [
+      {
+        "id": "r3-schema",
+        "title": "Table creation with constraints",
+        "tasks": [
+          {
+            "id": "r3-01",
+            "title": "Create Department and Employee tables",
+            "prompt": "Create two tables with these requirements.\n\nDEPARTMENT\n• DeptNo — Primary Key\n• DeptName — UNIQUE and NOT NULL\n• Location — Department location\n\nEMPLOYEE\n• EmpID — Primary Key\n• EmpName — NOT NULL\n• Salary — must be greater than 0 (CHECK constraint)\n• HireDate — date of joining\n• DeptNo — Foreign Key referencing Department(DeptNo)\n\nWrite the SQL commands to create both tables with the given constraints."
+          }
+        ]
+      },
+      {
+        "id": "r3-dml",
+        "title": "Constraints & data manipulation",
+        "tasks": [
+          {
+            "id": "r3-02-01",
+            "title": "Q1 · Insert departments and employees",
+            "prompt": "Insert 5 departments and 10 employees with proper values."
+          },
+          {
+            "id": "r3-02-02",
+            "title": "Q2 · Insert employee without a department",
+            "prompt": "Try inserting an employee without a department (should fail)."
+          },
+          {
+            "id": "r3-02-03",
+            "title": "Q3 · Duplicate department name",
+            "prompt": "Try inserting a duplicate department name (should fail)."
+          },
+          {
+            "id": "r3-02-04",
+            "title": "Q4 · CHECK constraint on salary",
+            "prompt": "Insert an employee with salary = -5000 (should fail due to the CHECK constraint)."
+          },
+          {
+            "id": "r3-02-05",
+            "title": "Q5 · Increase Department 10 salaries",
+            "prompt": "Update the salary of employees in Department 10 by 10%."
+          },
+          {
+            "id": "r3-02-06",
+            "title": "Q6 · Referential integrity on delete",
+            "prompt": "Delete an employee record and check whether referential integrity is maintained."
+          },
+          {
+            "id": "r3-02-07",
+            "title": "Q7 · Employees with no department",
+            "prompt": "Delete all employees who do not belong to any department."
+          }
+        ]
+      },
+      {
+        "id": "r3-operators",
+        "title": "Queries using operators",
+        "tasks": [
+          {
+            "id": "r3-03-08",
+            "title": "Q8 · Employees hired in a date range",
+            "prompt": "Display all employees who joined between '2023-01-01' and '2024-01-01' (use BETWEEN)."
+          },
+          {
+            "id": "r3-03-09",
+            "title": "Q9 · Names starting with A",
+            "prompt": "Display employees whose name starts with 'A' (use LIKE)."
+          },
+          {
+            "id": "r3-03-10",
+            "title": "Q10 · Departments 10, 20 or 30",
+            "prompt": "Find employees whose department number is either 10, 20, or 30 (use IN)."
+          },
+          {
+            "id": "r3-03-11",
+            "title": "Q11 · Employees outside Department 40",
+            "prompt": "Display employees who do not belong to department 40."
+          }
+        ]
+      },
+      {
+        "id": "r3-aggregates",
+        "title": "Aggregate functions",
+        "tasks": [
+          {
+            "id": "r3-04-12",
+            "title": "Q12 · Highest, lowest and average salary",
+            "prompt": "Find the highest, lowest, and average salary of employees."
+          },
+          {
+            "id": "r3-04-13",
+            "title": "Q13 · Employee count by department",
+            "prompt": "Count the number of employees in each department."
+          },
+          {
+            "id": "r3-04-14",
+            "title": "Q14 · Department-wise employee count",
+            "prompt": "Find the department-wise number of each employee."
+          },
+          {
+            "id": "r3-04-15",
+            "title": "Q15 · Salary expense per department",
+            "prompt": "Display total salary expense per department."
+          },
+          {
+            "id": "r3-04-16",
+            "title": "Q16 · Salary above the average",
+            "prompt": "List employees whose salary is greater than the average salary."
+          }
+        ]
+      },
+      {
+        "id": "r3-functions",
+        "title": "String, date and numeric functions",
+        "tasks": [
+          {
+            "id": "r3-05-17",
+            "title": "Q17 · Uppercase employee names",
+            "prompt": "Display employee names in uppercase."
+          },
+          {
+            "id": "r3-05-18",
+            "title": "Q18 · First three letters of each name",
+            "prompt": "Extract the first 3 letters of each employee name."
+          },
+          {
+            "id": "r3-05-19",
+            "title": "Q19 · Name and salary string",
+            "prompt": "Concatenate employee name and salary in the format: Name - Salary."
+          },
+          {
+            "id": "r3-06-20",
+            "title": "Q20 · Years completed in the company",
+            "prompt": "Display each employee name along with the number of years completed in the company."
+          },
+          {
+            "id": "r3-06-21",
+            "title": "Q21 · Employees hired this year",
+            "prompt": "Find employees hired in the current year."
+          },
+          {
+            "id": "r3-07-22",
+            "title": "Q22 · Round salary to two decimals",
+            "prompt": "Round employee salary to 2 decimal places."
+          },
+          {
+            "id": "r3-07-23",
+            "title": "Q23 · Absolute salary difference",
+            "prompt": "Find the absolute difference between the highest and lowest salary."
+          }
+        ]
+      },
+      {
+        "id": "r3-advanced",
+        "title": "Advanced queries",
+        "tasks": [
+          {
+            "id": "r3-08",
+            "title": "Q24 · Department summary with HAVING",
+            "prompt": "Show department numbers with total employees, maximum salary, and minimum salary, but only where total employees > 2."
+          },
+          {
+            "id": "r3-09",
+            "title": "Q25 · Employee details for a hire-date range",
+            "prompt": "Display employee name in uppercase, salary rounded to 2 decimals, and hire date only for employees hired between '2022-01-01' and '2023-12-31'."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "round-04",
+    "title": "Round 04",
+    "emoji": "🥊",
+    "focus": "Joins and subqueries",
+    "sections": [
+      {
+        "id": "r4-setup",
+        "title": "Joins · create and load sample tables",
+        "tasks": [
+          {
+            "id": "r4-student-setup",
+            "title": "Create and load STUDENT",
+            "prompt": "Create STUDENT with columns ROLL_NO, NAME, ADDRESS, PHONE, AGE. Insert these rows:\n\nROLL_NO | NAME | ADDRESS | PHONE | AGE\n1 | HARSH | BHAVNAGAR | 1234567890 | 18\n2 | PRIYANSH | BHUJ | 9999999999 | 19\n3 | RIYA | SIDHDHPUR | 9090909090 | 20\n4 | DEEPIKA | RAMNAGAR | 9000000009 | 18\n5 | SAPANA | KOLKATA | 9898989898 | 19\n6 | DHANESH | AHMEDABAD | 9999888899 | 20\n7 | RAHUL | HIMMATNAGAR | 2345678999 | 18\n8 | NIRALI | SURAT | 9993458789 | 19"
+          },
+          {
+            "id": "r4-course-setup",
+            "title": "Create and load StudentCourse",
+            "prompt": "Create StudentCourse with columns COURSE_ID, COURSE_NAME, ROLL_NO. Insert these rows (some roll numbers intentionally have no matching STUDENT row):\n\nCOURSE_ID | COURSE_NAME | ROLL_NO\n1 | BTECH | 1\n2 | BCA | 2\n2 | MCA | 3\n3 | BBA | 4\n1 | MTECH | 5\n4 | BscIT | 9\n5 | MBA | 10\n4 | MscIT | 11"
+          }
+        ]
+      },
+      {
+        "id": "r4-inner",
+        "title": "INNER JOIN",
+        "tasks": [
+          {
+            "id": "r4-join-01",
+            "title": "Q1 · Matching students and courses",
+            "prompt": "Display all students with their course names, only for students who have matching course records."
+          },
+          {
+            "id": "r4-join-02",
+            "title": "Q2 · Students enrolled in BTECH",
+            "prompt": "Display matching students and course names, but show only students enrolled in 'BTECH'."
+          },
+          {
+            "id": "r4-join-03",
+            "title": "Q3 · Students older than 18",
+            "prompt": "Display matching students and their courses only when AGE > 18."
+          }
+        ]
+      },
+      {
+        "id": "r4-outer",
+        "title": "LEFT, RIGHT & FULL OUTER JOIN",
+        "tasks": [
+          {
+            "id": "r4-join-04",
+            "title": "Q4 · All students, including unenrolled students",
+            "prompt": "Display all students, including those who are not enrolled in any course."
+          },
+          {
+            "id": "r4-join-05",
+            "title": "Q5 · Students with no course",
+            "prompt": "Display all students, including those not enrolled in a course, and retrieve only the students whose course name is NULL."
+          },
+          {
+            "id": "r4-join-06",
+            "title": "Q6 · Students from Surat",
+            "prompt": "Display all students, including those not enrolled, and show only students from SURAT along with their course names if available."
+          },
+          {
+            "id": "r4-join-07",
+            "title": "Q7 · All course enrollments",
+            "prompt": "Display all course enrollments, including those for which no student exists in the STUDENT table."
+          },
+          {
+            "id": "r4-join-08",
+            "title": "Q8 · Enrollments with no matching student",
+            "prompt": "Display all course enrollments, including those without a matching student, and list the roll numbers that exist in StudentCourse but are missing from Student."
+          },
+          {
+            "id": "r4-join-09",
+            "title": "Q9 · All students and all enrollments",
+            "prompt": "Display all students and all course enrollments, whether they match or not."
+          },
+          {
+            "id": "r4-join-10",
+            "title": "Q10 · Label students with no course",
+            "prompt": "Display all students and all course enrollments, matching or not, and indicate 'No Course' for students who are not enrolled in any course."
+          }
+        ]
+      },
+      {
+        "id": "r4-self",
+        "title": "SELF JOIN",
+        "tasks": [
+          {
+            "id": "r4-join-11",
+            "title": "Q11 · Student pairs with the same age",
+            "prompt": "Display pairs of students who have the same age."
+          },
+          {
+            "id": "r4-join-12",
+            "title": "Q12 · Same age and same city",
+            "prompt": "Display student pairs who share the same age, and identify students living in the same city."
+          },
+          {
+            "id": "r4-join-13",
+            "title": "Q13 · Same age and consecutive roll numbers",
+            "prompt": "Display student pairs who share the same age and have consecutive roll numbers, where S1.ROLL_NO = S2.ROLL_NO - 1."
+          },
+          {
+            "id": "r4-join-14",
+            "title": "Q14 · Phone numbers with the same prefix",
+            "prompt": "Display students whose phone number starts with the same first 3 digits."
+          }
+        ]
+      },
+      {
+        "id": "r4-natural-cross",
+        "title": "NATURAL JOIN & CROSS JOIN",
+        "tasks": [
+          {
+            "id": "r4-join-15",
+            "title": "Q15 · NATURAL JOIN students and courses",
+            "prompt": "Display all students and their courses using NATURAL JOIN (the join uses columns with matching names)."
+          },
+          {
+            "id": "r4-join-16",
+            "title": "Q16 · NATURAL JOIN for MBA",
+            "prompt": "Display students with their courses using NATURAL JOIN, filtered to COURSE_NAME = 'MBA'."
+          },
+          {
+            "id": "r4-join-17",
+            "title": "Q17 · Select student and course names",
+            "prompt": "Display students and their courses using NATURAL JOIN, selecting only NAME and COURSE_NAME."
+          },
+          {
+            "id": "r4-join-18",
+            "title": "Q18 · CROSS JOIN every student/course combination",
+            "prompt": "Display all possible combinations of students and courses."
+          },
+          {
+            "id": "r4-join-19",
+            "title": "Q19 · Count all combinations",
+            "prompt": "Display all possible combinations of students and courses, and show the total number of combinations using COUNT(*)."
+          },
+          {
+            "id": "r4-join-20",
+            "title": "Q20 · Combinations for students older than 18",
+            "prompt": "Display all possible combinations of students and courses, but include only those where Student.AGE > 18."
+          }
+        ]
+      },
+      {
+        "id": "r4-subqueries",
+        "title": "Subqueries · nested & correlated",
+        "tasks": [
+          {
+            "id": "r4-sub-01",
+            "title": "Q1 · Students enrolled in BTECH",
+            "prompt": "Display the names of students who are enrolled in the 'BTECH' course."
+          },
+          {
+            "id": "r4-sub-02",
+            "title": "Q2 · Students older than average",
+            "prompt": "Find the names of students whose age is greater than the average age of all students."
+          },
+          {
+            "id": "r4-sub-03",
+            "title": "Q3 · Students not enrolled",
+            "prompt": "List the names of students who are not enrolled in any course."
+          },
+          {
+            "id": "r4-sub-04",
+            "title": "Q4 · Students in courses with multiple students",
+            "prompt": "Display the details of students who are enrolled in courses that have more than one student."
+          },
+          {
+            "id": "r4-sub-05",
+            "title": "Q5 · Students sharing the course of roll 2",
+            "prompt": "Show all students who are enrolled in the same course as ROLL_NO = 2."
+          },
+          {
+            "id": "r4-sub-06",
+            "title": "Q6 · Courses where all students are older than 18",
+            "prompt": "Find the courses in which all students are older than 18."
+          },
+          {
+            "id": "r4-sub-07",
+            "title": "Q7 · Older than student with roll 1",
+            "prompt": "Display the names of students whose age is greater than the age of student with ROLL_NO = 1."
+          },
+          {
+            "id": "r4-sub-08",
+            "title": "Q8 · No same-age classmate in their course",
+            "prompt": "List students who are enrolled in courses that no other student with the same AGE is enrolled in."
+          },
+          {
+            "id": "r4-sub-09",
+            "title": "Q9 · Roll number below the course average",
+            "prompt": "Find students whose ROLL_NO is less than the average ROLL_NO of students in the same course."
+          },
+          {
+            "id": "r4-sub-10",
+            "title": "Q10 · Course maximum age below 20",
+            "prompt": "Display the names of students who are enrolled in courses where the maximum age of students in that course is less than 20."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "round-05",
+    "title": "Round 05",
+    "emoji": "🥊",
+    "focus": "Sequences, views, set operations and transactions",
+    "sections": [
+      {
+        "id": "r5-foundation",
+        "title": "Sequences, tables & indexes",
+        "tasks": [
+          {
+            "id": "r5-01",
+            "title": "Q1 · Create sequences",
+            "prompt": "Create these sequences:\n\nCREATE SEQUENCE student_seq START WITH 1001 INCREMENT BY 1 NOCACHE NOCYCLE;\nCREATE SEQUENCE enroll_seq START WITH 5001 INCREMENT BY 1 NOCACHE NOCYCLE;"
+          },
+          {
+            "id": "r5-02",
+            "title": "Q2 · Create Student and Enrollment tables",
+            "prompt": "Create the tables below.\n\nSTUDENT\n• student_id NUMBER — Primary Key; unique student identifier\n• name VARCHAR2(60) — Student full name\n• dept VARCHAR2(30) — Department name\n• year_of_join NUMBER — Year of admission/joining\n• email VARCHAR2(100) — Student email address\n\nENROLLMENT\n• enr_id NUMBER — Primary Key; unique enrollment identifier\n• student_id NUMBER — Foreign Key referencing Student(student_id)\n• course_code VARCHAR2(10) — Course code (for example, CS101)\n• semester VARCHAR2(10) — Semester (for example, Spring2025)\n• grade VARCHAR2(2) — Grade earned (for example, A or B+)"
+          },
+          {
+            "id": "r5-03",
+            "title": "Q3 · Insert initial students and enrollments",
+            "prompt": "Insert 3 students into Student using student_seq.NEXTVAL. Insert 5 enrollments for different students using enroll_seq.NEXTVAL."
+          },
+          {
+            "id": "r5-04",
+            "title": "Q4 · Insert more rows and inspect sequences",
+            "prompt": "Insert three more students and one enrollment, then show how both sequences auto-increment."
+          },
+          {
+            "id": "r5-05",
+            "title": "Q5 · Show current sequence values",
+            "prompt": "Show the current value of both sequences: student_seq and enroll_seq."
+          },
+          {
+            "id": "r5-06",
+            "title": "Q6 · NEXTVAL versus CURRVAL",
+            "prompt": "Demonstrate the difference between NEXTVAL and CURRVAL with queries."
+          },
+          {
+            "id": "r5-07",
+            "title": "Q7 · Manually insert a student ID",
+            "prompt": "Try inserting a record using a manual student_id rather than the sequence. What happens if the ID conflicts with a sequence-generated value?"
+          },
+          {
+            "id": "r5-08",
+            "title": "Q8 · Recreate enroll_seq",
+            "prompt": "Drop and recreate enroll_seq to start from 6001. Show the effect."
+          },
+          {
+            "id": "r5-09",
+            "title": "Q3 · Create indexes",
+            "prompt": "Create an index on Student.dept and on Enrollment.course_code."
+          },
+          {
+            "id": "r5-10",
+            "title": "Q4 · Create synonyms",
+            "prompt": "Create a synonym for the Student table and a synonym for the Enrollment table."
+          },
+          {
+            "id": "r5-11",
+            "title": "Q5 · Join students and enrollment details",
+            "prompt": "Display all students and their enrollment details using a join."
+          },
+          {
+            "id": "r5-12",
+            "title": "Q6 · Students with generated IDs 1001–1005",
+            "prompt": "Write a query to list students whose student_id was generated between 1001 and 1005."
+          }
+        ]
+      },
+      {
+        "id": "r5-set-ops",
+        "title": "Basic SELECTs & set operations",
+        "tasks": [
+          {
+            "id": "r5-13",
+            "title": "Q7 · UNION and UNION ALL",
+            "prompt": "Write Q1 to return student_id and name for students who joined in 2020 or earlier. Write Q2 for students in the CSE department.\n\n(a) Combine Q1 and Q2 with UNION and explain how duplicates are handled.\n(b) Combine Q1 and Q2 with UNION ALL and explain the difference."
+          },
+          {
+            "id": "r5-14",
+            "title": "Q8 · INTERSECT and equivalent INNER JOIN",
+            "prompt": "Find students who are both in CSE and enrolled in CSE201 using (a) INTERSECT between the Student and Enrollment queries and (b) an INNER JOIN. Show both results and confirm they match."
+          },
+          {
+            "id": "r5-15",
+            "title": "Q9 · MINUS enrolled non-CSE students",
+            "prompt": "List students who appear in Enrollment but are not in the CSE department, using MINUS."
+          },
+          {
+            "id": "r5-16",
+            "title": "Q10 · Combine UNION, INTERSECT and MINUS",
+            "prompt": "Create two queries that return student_id lists and compose a single statement using UNION, INTERSECT and MINUS (in any order) to get students who either took CSE101 or ECE101 but are not from dept = 'ME'. Explain the ordering of set operators."
+          }
+        ]
+      },
+      {
+        "id": "r5-views",
+        "title": "Views, synonyms & indexes",
+        "tasks": [
+          {
+            "id": "r5-17",
+            "title": "Q11 · Create and query v_student_enroll",
+            "prompt": "Create a view v_student_enroll(student_id, name, course_code, semester) joining Student and Enrollment. Then:\n(a) Query the view to list students who took more than one distinct course_code.\n(b) Explain the benefits of using a view here."
+          },
+          {
+            "id": "r5-18",
+            "title": "Q12 · EXPLAIN PLAN before and after an index",
+            "prompt": "Create an index on Enrollment(student_id) and show EXPLAIN PLAN for:\nSELECT * FROM enrollment WHERE student_id = 1001;\nThen drop the index and show EXPLAIN PLAN again. Summarize the difference."
+          },
+          {
+            "id": "r5-19",
+            "title": "Q13 · Query with and without synonyms",
+            "prompt": "Use the synonyms s_student and s_enrollment in a join query to list name, course_code and semester for semester = '2020-1'. Show the same query without synonyms and confirm the results are identical."
+          }
+        ]
+      },
+      {
+        "id": "r5-sequence-work",
+        "title": "Sequences, INSERTs & updates",
+        "tasks": [
+          {
+            "id": "r5-20",
+            "title": "Q14 · Insert and enroll a new CSE student",
+            "prompt": "Insert a new student using student_seq.NEXTVAL with dept = 'CSE', then enroll them in CSE101 using enroll_seq.NEXTVAL. Show the inserted rows with SELECT."
+          },
+          {
+            "id": "r5-21",
+            "title": "Q15 · Multi-row INSERT using DUAL",
+            "prompt": "Demonstrate a multi-row insert into Student by selecting from DUAL with UNION ALL and using student_seq.NEXTVAL inside the SELECT portion to populate 3 new students in one statement."
+          },
+          {
+            "id": "r5-22",
+            "title": "Q16 · Update alumni email domains",
+            "prompt": "Write an UPDATE that gives all students from CSE who joined before 2021 the email domain @alumni.uni.edu. Show before/after snapshots and use transaction tasks to control COMMIT/ROLLBACK."
+          }
+        ]
+      },
+      {
+        "id": "r5-subqueries",
+        "title": "EXISTS, ANY, ALL & correlated subqueries",
+        "tasks": [
+          {
+            "id": "r5-23",
+            "title": "Q17 · EXISTS: students with enrollments",
+            "prompt": "Use EXISTS to list students who have at least one enrollment record."
+          },
+          {
+            "id": "r5-24",
+            "title": "Q18 · NOT EXISTS: students without enrollments",
+            "prompt": "Use NOT EXISTS to list students who are not enrolled in any course."
+          },
+          {
+            "id": "r5-25",
+            "title": "Q19 · ANY: compare course codes",
+            "prompt": "Using ANY, find students who have taken ANY course whose code is lexicographically greater than 'CSE150'. Show an example and explain the behavior."
+          },
+          {
+            "id": "r5-26",
+            "title": "Q20 · ALL: compare join years",
+            "prompt": "Using ALL, find students whose year_of_join is greater than ALL year_of_join values of students in dept 'ME'. Explain the logic and show the result; it may be empty."
+          },
+          {
+            "id": "r5-27",
+            "title": "Q21 · Correlated count of distinct courses",
+            "prompt": "For every student, show the number of distinct courses they enrolled in using a correlated subquery."
+          }
+        ]
+      },
+      {
+        "id": "r5-transactions",
+        "title": "Transactions · COMMIT, ROLLBACK & SAVEPOINT",
+        "tasks": [
+          {
+            "id": "r5-28",
+            "title": "Q22 · Safe enrollment with SAVEPOINT",
+            "prompt": "For this transaction task, provide the SQL statements and SELECT outputs that demonstrate the final state.\n\n• Begin (implicit). Insert an enrollment for an existing student using enroll_seq.NEXTVAL, then create SAVEPOINT sp1.\n• Insert a second enrollment, simulating an accidental duplicate by reusing the same enr_id or inserting an invalid row.\n• Detect the mistake, ROLLBACK TO sp1, then COMMIT.\n• Show that only the first enrollment persisted."
+          },
+          {
+            "id": "r5-29",
+            "title": "Q23 · Failed batch and full ROLLBACK",
+            "prompt": "Try to insert 3 enrollments where one violates the foreign key by using a student_id that does not exist. Catch the error and ROLLBACK the entire transaction. Show that no rows from the batch were added."
+          },
+          {
+            "id": "r5-30",
+            "title": "Q24 · Partial change, SAVEPOINT and COMMIT",
+            "prompt": "Update email addresses for a set of students, then SAVEPOINT sp_email. Update some grades incorrectly, ROLLBACK TO sp_email, and COMMIT. Show the final state: emails updated, incorrect grade updates undone."
+          }
+        ]
+      },
+      {
+        "id": "r5-advanced",
+        "title": "Combined & advanced challenges",
+        "tasks": [
+          {
+            "id": "r5-31",
+            "title": "Q25 · CSE101 or 2022 courses, excluding ME",
+            "prompt": "Produce a list of students who either took CSE101 OR took at least one course in 2022, but exclude any student who also appears in dept ME. Use a combination of UNION and MINUS with EXISTS where helpful."
+          },
+          {
+            "id": "r5-32",
+            "title": "Q26 · Public student view",
+            "prompt": "Create a view v_public_students(student_id, name, dept) that hides email. Explain how granting SELECT on this view to a hypothetical user protects email addresses; creating the user is optional."
+          },
+          {
+            "id": "r5-33",
+            "title": "Q27 · Compare ANY and ALL",
+            "prompt": "Find student_id values where the student's year_of_join is less than ANY year_of_join for students in dept 'CSE'. Explain when ANY returns true. Then modify the query to use ALL and explain the difference."
+          },
+          {
+            "id": "r5-34",
+            "title": "Combined challenge · sequence, enrollment, SAVEPOINT and view",
+            "prompt": "Complete this combined challenge:\n• Add a new student using the sequence.\n• Enroll them in two courses with two enroll_seq inserts.\n• Create a SAVEPOINT after the first enrollment.\n• Attempt a second enrollment that duplicates a course for that student, detect the error, roll back to the SAVEPOINT, and commit.\n• Create/query v_student_enroll to show the new student’s final profile."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "round-06",
+    "title": "Round 06",
+    "emoji": "🥊",
+    "focus": "PL/SQL blocks, functions, procedures and triggers",
+    "sections": [
+      {
+        "id": "r6-plsql",
+        "title": "PL/SQL practice",
+        "tasks": [
+          {
+            "id": "r6-01",
+            "title": "Q1 · Odd numbers from 1 to 10",
+            "prompt": "Write a PL/SQL block to print all odd numbers between 1 and 10 using a basic loop."
+          },
+          {
+            "id": "r6-02",
+            "title": "Q2 · Multiplication table",
+            "prompt": "Write a PL/SQL block to print the multiplication table for a given number."
+          },
+          {
+            "id": "r6-03",
+            "title": "Q3 · Area of a circle",
+            "prompt": "Write a PL/SQL block to find the area of a circle according to a radius entered by the user."
+          },
+          {
+            "id": "r6-04",
+            "title": "Q4 · Sum of even digits",
+            "prompt": "Write a PL/SQL block to find the sum of the even digits of a given number."
+          },
+          {
+            "id": "r6-05",
+            "title": "Q5 · Check whether a day is Friday",
+            "prompt": "Write a PL/SQL block to check whether a given day is Friday."
+          },
+          {
+            "id": "r6-06",
+            "title": "Q6 · Number palindrome",
+            "prompt": "Write a PL/SQL block to check whether a given number is a palindrome."
+          },
+          {
+            "id": "r6-07",
+            "title": "Q7 · Reverse a number",
+            "prompt": "Write a PL/SQL block to reverse a given number."
+          },
+          {
+            "id": "r6-08",
+            "title": "Q8 · Leap year",
+            "prompt": "Write a PL/SQL block to check whether a given year is a leap year."
+          },
+          {
+            "id": "r6-09",
+            "title": "Q9 · Fibonacci series",
+            "prompt": "Write a PL/SQL block to generate the Fibonacci series."
+          },
+          {
+            "id": "r6-10",
+            "title": "Q10 · Odd or even",
+            "prompt": "Write a PL/SQL block to check whether a given number is odd or even."
+          },
+          {
+            "id": "r6-11",
+            "title": "Q11 · Delete an entered employee number",
+            "prompt": "Create an Employee table with one attribute, Empno. Insert values 1 to 10 for Empno. Then write a PL/SQL block to delete the Empno entered by the user."
+          },
+          {
+            "id": "r6-12",
+            "title": "Q12 · Concatenate two strings",
+            "prompt": "Write a PL/SQL function to concatenate two strings with a blank space in between."
+          },
+          {
+            "id": "r6-13",
+            "title": "Q13 · Calculator functions and procedure",
+            "prompt": "Create functions to display the result of two numbers: (a) SUM, (b) SUB, (c) MUL, and (d) DIV. Write a Procedure named Calculator to provide a choice for the function to use."
+          },
+          {
+            "id": "r6-14",
+            "title": "Q14 · Business-hours trigger",
+            "prompt": "Write a database trigger that allows changes to the Employee table only during business hours: from 8:00 AM to 5:00 PM, Monday through Saturday. Use RAISE_APPLICATION_ERROR."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "final-round",
+    "title": "Final Round",
+    "emoji": "🍿",
+    "focus": "Projects, stored programs, packages and triggers",
+    "sections": [
+      {
+        "id": "final-schema",
+        "title": "Project schema & setup",
+        "tasks": [
+          {
+            "id": "final-setup",
+            "title": "Create PROJECT, EMPLOYEE and PROJEMP",
+            "prompt": "Create the tables below.\n\nPROJECT\n• PROJ_NO VARCHAR2(5)\n• PROJ_TITLE VARCHAR2(15)\n• SPON_BY VARCHAR2(20)\n• START_AT DATE\n• DURATION NUMBER(4,2)\n• TOT_AMT NUMBER(9,2)\n\nEMPLOYEE\n• EMP_NO VARCHAR2(5)\n• EMP_NAME VARCHAR2(15)\n• SALARY NUMBER(9,2)\n• DEPT_NO VARCHAR2(5)\n\nPROJEMP\n• EMP_NO VARCHAR2(5)\n• PROJ_NO VARCHAR2(5)"
+          }
+        ]
+      },
+      {
+        "id": "final-programs",
+        "title": "Functions, procedures & packages",
+        "tasks": [
+          {
+            "id": "final-01",
+            "title": "Q1 · Calculator procedure and functions",
+            "prompt": "Write a stored procedure and function for Calculator to call the SUM, SUB, MUL and DIV functions created earlier, based on the user’s choice."
+          },
+          {
+            "id": "final-02",
+            "title": "Q2 · Concatenate two strings",
+            "prompt": "Write a PL/SQL function to concatenate two strings with a blank space in between."
+          },
+          {
+            "id": "final-03",
+            "title": "Q3 · Maximum and minimum of two values",
+            "prompt": "Write a PL/SQL function to find the maximum and minimum among two given values."
+          },
+          {
+            "id": "final-04",
+            "title": "Q4 · Maximum and minimum of three values",
+            "prompt": "Write a PL/SQL function to find the maximum and minimum among three given values."
+          },
+          {
+            "id": "final-05",
+            "title": "Q5 · Vowel or consonant",
+            "prompt": "Write a PL/SQL function to check whether an entered character is a vowel or consonant."
+          },
+          {
+            "id": "final-06",
+            "title": "Q6 · Simple interest",
+            "prompt": "Write a PL/SQL function to find simple interest."
+          },
+          {
+            "id": "final-07",
+            "title": "Q7 · Arithmetic functions",
+            "prompt": "Create PL/SQL functions to perform these operations on two numbers: (a) SUM, (b) SUB, (c) MUL, (d) DIV."
+          },
+          {
+            "id": "final-08",
+            "title": "Q8 · Factorial",
+            "prompt": "Write a PL/SQL function to calculate the factorial of a number."
+          },
+          {
+            "id": "final-09",
+            "title": "Q9 · Reverse a string",
+            "prompt": "Write a PL/SQL function that returns the reversed version of a given string."
+          },
+          {
+            "id": "final-10",
+            "title": "Q10 · PRIME or NOT PRIME",
+            "prompt": "Write a PL/SQL function to return whether a number is PRIME or NOT PRIME."
+          },
+          {
+            "id": "final-11",
+            "title": "Q11 · Square root with exception handling",
+            "prompt": "Write a PL/SQL function to return the square root of a number, with exception handling if a negative value is passed."
+          },
+          {
+            "id": "final-12",
+            "title": "Q12 · Insert employee procedure",
+            "prompt": "Write a stored procedure to insert a new employee into the employees table."
+          },
+          {
+            "id": "final-13",
+            "title": "Q13 · Update employee salary procedure",
+            "prompt": "Write a stored procedure to update the salary of an employee."
+          },
+          {
+            "id": "final-14",
+            "title": "Q14 · Delete employee procedure",
+            "prompt": "Write a stored procedure to delete an employee record using employee_id."
+          },
+          {
+            "id": "final-15",
+            "title": "Q15 · Insert project procedure",
+            "prompt": "Write a stored procedure to insert a new project into the PROJECT table."
+          },
+          {
+            "id": "final-16",
+            "title": "Q16 · Assign employee to project",
+            "prompt": "Write a stored procedure to assign an employee to a project by inserting into PROJEMP."
+          },
+          {
+            "id": "final-17",
+            "title": "Q17 · Project total amount function",
+            "prompt": "Write a function to return the total amount (TOT_AMT) of a project using PROJ_NO."
+          },
+          {
+            "id": "final-18",
+            "title": "Q18 · Annual salary function",
+            "prompt": "Write a function to calculate the annual salary of an employee using EMP_NO."
+          },
+          {
+            "id": "final-19",
+            "title": "Q19 · Employees on a project",
+            "prompt": "Write a function that returns how many employees are working on a given project (count from PROJEMP)."
+          },
+          {
+            "id": "final-20",
+            "title": "Q20 · Employee bonus",
+            "prompt": "Write a PL/SQL function to calculate a bonus equal to 10% of an employee’s salary."
+          },
+          {
+            "id": "final-21",
+            "title": "Q21 · PKG_PROJECT_MGMT package",
+            "prompt": "Create a package and package body named PKG_PROJECT_MGMT containing:\n• Procedure ADD_PROJECT to insert a project into PROJECT.\n• Procedure ASSIGN_EMPLOYEE to assign an employee to a project (insert into PROJEMP).\n\nThe package must also include an exception that handles duplicate project numbers."
+          },
+          {
+            "id": "final-22",
+            "title": "Q22 · PKG_REPORTS package",
+            "prompt": "Create a package PKG_REPORTS with:\n• Function GET_PROJECT_BUDGET(p_proj_no) that returns TOT_AMT for a given project.\n• Procedure LIST_PROJECT_EMPLOYEES(p_proj_no) that displays employee names working on that project.\n\nUse a cursor inside the procedure."
+          },
+          {
+            "id": "final-23",
+            "title": "Q23 · PKG_EMP_MGMT package",
+            "prompt": "Create a package PKG_EMP_MGMT that includes:\n• A record type based on EMPLOYEE20 table.\n• Procedure SHOW_EMPLOYEE(p_emp_no) that prints employee name, salary, and department.\n• Procedure UPDATE_SALARY(p_emp_no, p_increment) that increases salary.\n\nHandle the exception if the employee does not exist."
+          },
+          {
+            "id": "final-24",
+            "title": "Q24 · proj_mgmt_pkg package",
+            "prompt": "Create a package named proj_mgmt_pkg that includes:\n(a) Function get_project_title(PROJ_NO).\n(b) Function get_employee_salary(EMP_NO).\n(c) Procedure add_project(PROJ_NO, PROJ_TITLE, SPON_BY, START_AT, DURATION, TOT_AMT).\n(d) Procedure assign_employee_to_project(EMP_NO, PROJ_NO)."
+          }
+        ]
+      },
+      {
+        "id": "final-triggers",
+        "title": "Triggers & transaction control",
+        "tasks": [
+          {
+            "id": "final-25",
+            "title": "Q25 · Validate project amount and duration",
+            "prompt": "Create a BEFORE INSERT OR UPDATE trigger on PROJECT to ensure TOT_AMT > 0 and DURATION is not negative. If a value is invalid, raise an application error."
+          },
+          {
+            "id": "final-26",
+            "title": "Q26 · PROJECT audit trigger",
+            "prompt": "Create an AFTER UPDATE FOR EACH ROW trigger on PROJECT that stores the update date into a PROJECT_AUDIT table."
+          },
+          {
+            "id": "final-27",
+            "title": "Q27 · Block weekend employee operations",
+            "prompt": "Create a BEFORE INSERT OR DELETE OR UPDATE trigger on EMPLOYEE that prevents all operations on Saturday and Sunday."
+          },
+          {
+            "id": "final-28",
+            "title": "Q28 · Confirm project assignment",
+            "prompt": "Create an AFTER INSERT trigger on PROJEMP that displays the message: 'Employee assigned to project successfully.'"
+          },
+          {
+            "id": "final-29",
+            "title": "Q29 · Transaction-control exercise",
+            "prompt": "Write a PL/SQL block using the transaction-control (TCL) commands while inserting values into EMPLOYEE: BEGIN TRANSACTION, SAVEPOINT A, UPDATE EMPLOYEE, SAVEPOINT B, ROLLBACK TO SAVEPOINT A, COMMIT."
+          }
+        ]
+      }
+    ]
+  }
+]

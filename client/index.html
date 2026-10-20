@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f7fb" />
+    <meta name="description" content="A syllabus-aligned GMIU DBMS learning and activity tracking portal." />
+    <title>GMIU DBMS Learning Portal</title>
+    <script>
+      (() => {
+        let theme = 'light';
+        try {
+          const saved = localStorage.getItem('dbms-portal-theme');
+          theme = saved === 'light' || saved === 'dark'
+            ? saved
+            : (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch { /* Fall back to the light palette when storage is unavailable. */ }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = theme === 'dark' ? '#0b1220' : '#f4f7fb';
+      })();
+    </script>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-width: 320px; min-height: 100%; background: #f4f7fb; }
+      #boot-splash { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; overflow: hidden; color: #172437; font-family: Inter, system-ui, sans-serif; background: radial-gradient(ellipse at 50% 46%, #fff 0, #f4f7fb 58%, #eaf0f7 100%); }
+      :root[data-theme="dark"], :root[data-theme="dark"] body { background: #0b1220; }
+      :root[data-theme="dark"] #boot-splash { color: #f2f7fb; background: radial-gradient(ellipse at 50% 46%, #172943 0, #0b1220 65%, #08101b 100%); }
+      :root[data-theme="dark"] #boot-splash p { color: #b9c7d7; }
+      #boot-splash h1 { display: flex; gap: 12px; margin: 0; font-size: clamp(32px, 7vw, 54px); letter-spacing: .12em; font-weight: 850; animation: boot-title-in .7s ease-out both; }
+      #boot-splash h1 span:last-child { color: #e13d42; }
+      #boot-splash p { margin: 0; color: #bec6dd; font-size: 10px; font-weight: 700; letter-spacing: .26em; }
+      #boot-splash .boot-track { width: 130px; height: 3px; margin-top: 7px; overflow: hidden; border-radius: 4px; background: #ffffff26; }
+      #boot-splash .boot-track i { display: block; width: 45%; height: 100%; border-radius: inherit; background: #e13d42; animation: boot-progress 1.3s ease-in-out infinite; }
+      @keyframes boot-title-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes boot-progress { from { transform: translateX(-110%); } to { transform: translateX(250%); } }
+      @media (prefers-reduced-motion: reduce) { #boot-splash h1 { animation-duration: .01ms; } #boot-splash .boot-track i { animation-duration: 4s; } }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot-splash" role="status" aria-label="Loading GMIU DBMS">
+        <h1><span>GMIU</span><span>DBMS</span></h1>
+        <p>DATABASE LEARNING PORTAL</p>
+        <div class="boot-track"><i></i></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
