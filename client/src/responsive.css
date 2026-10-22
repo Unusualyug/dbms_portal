@@ -2218,9 +2218,22 @@ canvas {
   font-size: 11px;
   font-weight: 800;
 }
-.hall-avatar {
+.hall-avatar-frame {
+  position: relative;
   width: 38px;
   height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  border-radius: 50%;
+  isolation: isolate;
+}
+.hall-avatar {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
   color: var(--accent-strong);
@@ -2437,6 +2450,97 @@ canvas {
   right: 2%;
   animation-delay: -1.65s;
 }
+.hall-rank-top-1 .hall-avatar-frame::before,
+.hall-rank-top-2 .hall-avatar-frame::before,
+.hall-rank-top-3 .hall-avatar-frame::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -2px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: conic-gradient(
+      from var(--hall-fire-angle, 0deg),
+      var(--hall-fire-deep),
+      var(--hall-fire-hot) 14%,
+      var(--hall-fire-main) 27%,
+      var(--hall-fire-deep) 39%,
+      var(--hall-fire-hot) 52%,
+      var(--hall-fire-main) 66%,
+      var(--hall-fire-deep) 78%,
+      var(--hall-fire-hot) 90%,
+      var(--hall-fire-deep)
+    )
+    border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 3px var(--hall-fire-glow))
+    drop-shadow(0 0 7px var(--hall-fire-glow));
+  pointer-events: none;
+  animation:
+    hall-fire-turn 3.2s linear infinite,
+    hall-fire-border-flicker 1.25s ease-in-out infinite alternate;
+}
+.hall-rank-top-1 .hall-avatar-frame::after,
+.hall-rank-top-2 .hall-avatar-frame::after,
+.hall-rank-top-3 .hall-avatar-frame::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    transparent 50%,
+    color-mix(in srgb, var(--hall-fire-main) 58%, transparent) 65%,
+    transparent 79%
+  );
+  filter: blur(3px);
+  opacity: 0.8;
+  pointer-events: none;
+  animation: hall-fire-flow 1.2s ease-in-out infinite alternate;
+}
+.hall-avatar-sparks {
+  position: absolute;
+  z-index: 2;
+  inset: -4px;
+  overflow: visible;
+  pointer-events: none;
+}
+.hall-avatar-spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border: 1px solid color-mix(in srgb, var(--hall-fire-deep) 55%, transparent);
+  border-radius: 50%;
+  background: var(--hall-fire-hot);
+  box-shadow:
+    0 0 4px 1px var(--hall-fire-main),
+    0 0 7px var(--hall-fire-glow);
+  opacity: 0;
+  animation: hall-fire-spark-rise 1.55s ease-in-out infinite;
+}
+.hall-avatar-spark-1 {
+  top: -1px;
+  left: 8px;
+  animation-delay: -0.2s;
+}
+.hall-avatar-spark-2 {
+  top: 11px;
+  right: -2px;
+  animation-delay: -0.82s;
+}
+.hall-avatar-spark-3 {
+  bottom: 0;
+  left: 25px;
+  animation-delay: -1.25s;
+}
 @property --hall-fire-angle {
   syntax: "<angle>";
   inherits: false;
@@ -2483,7 +2587,14 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .hall-fire-border,
   .hall-fire-flames,
-  .hall-fire-spark {
+  .hall-fire-spark,
+  .hall-avatar-spark,
+  .hall-rank-top-1 .hall-avatar-frame::before,
+  .hall-rank-top-2 .hall-avatar-frame::before,
+  .hall-rank-top-3 .hall-avatar-frame::before,
+  .hall-rank-top-1 .hall-avatar-frame::after,
+  .hall-rank-top-2 .hall-avatar-frame::after,
+  .hall-rank-top-3 .hall-avatar-frame::after {
     animation: none;
   }
   .hall-fire-border {
@@ -2641,9 +2752,12 @@ canvas {
     width: 30px;
     height: 30px;
   }
-  .hall-avatar {
+  .hall-avatar-frame {
     width: 34px;
     height: 34px;
+    flex-basis: 34px;
+  }
+  .hall-avatar {
     font-size: 10px;
   }
   .hall-student-info b {

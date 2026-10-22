@@ -170,17 +170,26 @@ export default function HallOfFamePage() {
                     `#${student.rank}`
                   )}
                 </span>
-                <span className="hall-avatar" aria-hidden="true">
-                  {student.profilePhotoUrl ? (
-                    <img
-                      src={student.profilePhotoUrl}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    initials(student.name)
+                <span className="hall-avatar-frame">
+                  {student.rank >= 1 && student.rank <= 3 && (
+                    <span className="hall-avatar-sparks" aria-hidden="true">
+                      <span className="hall-avatar-spark hall-avatar-spark-1" />
+                      <span className="hall-avatar-spark hall-avatar-spark-2" />
+                      <span className="hall-avatar-spark hall-avatar-spark-3" />
+                    </span>
                   )}
+                  <span className="hall-avatar" aria-hidden="true">
+                    {student.profilePhotoUrl ? (
+                      <img
+                        src={student.profilePhotoUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      initials(student.name)
+                    )}
+                  </span>
                 </span>
                 <span className="hall-student-info">
                   <b>{student.name}</b>
