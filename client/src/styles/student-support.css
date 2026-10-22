@@ -1,0 +1,322 @@
+/* Dedicated student support-page styling. Loaded with the lazy route to avoid a partially styled form. */
+.student-support-page {
+  width: 100%;
+  min-width: 0;
+}
+.student-support-workspace {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.student-support-workspace > .notice {
+  margin: 0 0 15px;
+}
+.student-support-grid {
+  display: grid !important;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
+  gap: 16px;
+  align-items: start;
+}
+.student-support-form,
+.student-support-thread {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.student-support-form .card-heading,
+.student-support-thread .card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 18px;
+}
+.student-support-form .card-heading h3,
+.student-support-thread .card-heading h3 {
+  margin: 4px 0 0;
+  color: var(--text-strong);
+  font-size: 16px;
+  line-height: 1.35;
+}
+.student-support-form .card-heading > svg {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+}
+form.student-support-form > label.support-field {
+  display: flex !important;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 7px;
+  margin: 0 0 15px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+form.student-support-form > label.support-field > span:first-child {
+  display: block;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.student-support-form input,
+.student-support-form select,
+.student-support-form textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  outline: 0;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.55;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+.student-support-form input,
+.student-support-form select {
+  height: 43px;
+  padding: 0 12px;
+}
+.student-support-form textarea {
+  min-height: 154px;
+  padding: 11px 12px;
+  resize: vertical;
+}
+.student-support-form input:focus,
+.student-support-form select:focus,
+.student-support-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.student-support-form input::placeholder,
+.student-support-form textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+.student-support-form .support-select-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.student-support-form .support-select-wrap > svg {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 12px;
+  color: var(--accent-strong);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.student-support-form .support-select-wrap select {
+  padding-left: 36px;
+  appearance: auto;
+}
+.student-support-form .support-field > small {
+  display: block;
+  align-self: flex-end;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+.student-support-submit {
+  display: inline-flex;
+  width: auto;
+  min-height: 41px;
+  align-self: flex-start;
+  padding: 0 15px;
+  font-size: 12px;
+}
+.student-support-thread .card-heading {
+  flex-wrap: wrap;
+}
+.student-support-thread .card-heading .button {
+  flex: 0 0 auto;
+}
+.student-support-request-list {
+  display: grid;
+  gap: 11px;
+}
+.student-support-request {
+  min-width: 0;
+  padding: 15px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.support-request-topline,
+.student-support-reply-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.support-category {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 750;
+}
+.support-category-suggestion {
+  color: #94631e;
+  background: color-mix(in srgb, #e4a63b 10%, var(--surface));
+  border-color: color-mix(in srgb, #e4a63b 28%, var(--border));
+}
+.support-request-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 700;
+}
+.support-request-status.is-replied {
+  color: var(--success);
+}
+.student-support-request h4 {
+  margin: 11px 0 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.support-request-message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-request-date {
+  display: block;
+  margin-top: 9px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.student-support-reply {
+  margin-top: 12px;
+  padding: 13px;
+  background: color-mix(in srgb, var(--success) 5%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--success) 22%, var(--border));
+  border-radius: 10px;
+}
+.student-support-reply-heading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 750;
+}
+.student-support-reply-heading > small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.student-support-reply > p {
+  margin: 8px 0 10px;
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-email-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.55;
+}
+.support-email-copy svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.support-email-sent {
+  color: var(--success);
+}
+.support-email-failed {
+  color: var(--danger);
+}
+.support-email-pending,
+.support-email-sending {
+  color: var(--warning);
+}
+.support-thread-empty {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 11px;
+}
+.support-thread-empty svg {
+  color: var(--accent-strong);
+}
+.support-thread-empty b {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+.support-thread-empty span {
+  max-width: 290px;
+  line-height: 1.6;
+}
+
+@media (max-width: 980px) {
+  .student-support-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .student-support-form,
+  .student-support-thread {
+    padding: 16px;
+  }
+  .student-support-form .card-heading,
+  .student-support-thread .card-heading {
+    align-items: flex-start;
+  }
+}
+@media (max-width: 520px) {
+  .student-support-grid {
+    gap: 12px;
+  }
+  .student-support-form,
+  .student-support-thread {
+    padding: 14px;
+  }
+  .student-support-form textarea {
+    min-height: 132px;
+  }
+  .support-request-topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .student-support-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}

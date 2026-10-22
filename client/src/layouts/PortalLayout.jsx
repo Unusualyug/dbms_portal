@@ -70,6 +70,12 @@ const studentLinks = [
     icon: Trophy,
     group: "LEARNING",
   },
+  {
+    to: "/student/support",
+    label: "Contact & Support",
+    icon: LifeBuoy,
+    group: "LEARNING",
+  },
   { to: "/student/profile", label: "Profile", icon: Users, group: "ACCOUNT" },
 ];
 const adminLinks = [
@@ -340,5 +346,6 @@ export default function PortalLayout({ role }) {
 function breadcrumb(path) {
   const last = path.split("/").filter(Boolean).pop() || "dashboard";
   if (last === "student" || last === "admin") return "Overview";
+  if (last === "support") return "Contact & Support";
   return last.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

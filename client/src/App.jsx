@@ -18,6 +18,7 @@ const PracticalLabPage = lazy(() => import("./pages/PracticalLabPage.jsx"));
 const PracticeArenaPage = lazy(() => import("./pages/PracticeArenaPage.jsx"));
 const ProgressPage = lazy(() => import("./pages/ProgressPage.jsx"));
 const HallOfFamePage = lazy(() => import("./pages/HallOfFamePage.jsx"));
+const StudentSupportPage = lazy(() => import("./pages/StudentSupportPage.jsx"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage.jsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
 const AdminStudentsPage = lazy(() => import("./pages/AdminStudentsPage.jsx"));
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="arena" element={<PracticeArenaPage />} />
             <Route path="progress" element={<ProgressPage />} />
             <Route path="hall-of-fame" element={<HallOfFamePage />} />
+            <Route path="support" element={<StudentSupportPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
         </Route>

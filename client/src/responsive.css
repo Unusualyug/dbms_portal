@@ -2589,6 +2589,8 @@ canvas {
   .hall-fire-flames,
   .hall-fire-spark,
   .hall-avatar-spark,
+  .badge-pin,
+  .badge-pin::after,
   .hall-rank-top-1 .hall-avatar-frame::before,
   .hall-rank-top-2 .hall-avatar-frame::before,
   .hall-rank-top-3 .hall-avatar-frame::before,
@@ -2645,61 +2647,119 @@ canvas {
   background: var(--surface-soft);
   border-bottom: 1px solid var(--border);
 }
-.hall-student-badges {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 3px;
-  margin-top: 1px;
-}
-
 /* Point milestones are earned directly from the server-provided total point count. */
-.point-badge--copper {
+.point-badge--copper,
+.badge-pin--copper {
   --point-badge-color: #bd642d;
+  --point-badge-light: #ffd69e;
+  --point-badge-deep: #7e321a;
 }
-.point-badge--blue {
+.point-badge--blue,
+.badge-pin--blue {
   --point-badge-color: #2476cf;
+  --point-badge-light: #b9f7ff;
+  --point-badge-deep: #153e91;
 }
-.point-badge--gold {
+.point-badge--gold,
+.badge-pin--gold {
   --point-badge-color: #a97808;
+  --point-badge-light: #fff0a1;
+  --point-badge-deep: #71430a;
 }
 .point-badge--full {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-width: 0;
-  min-height: 62px;
+  min-height: 70px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 10px;
+  padding: 10px 11px;
   color: var(--text-primary);
-  background: color-mix(in srgb, var(--point-badge-color) 7%, var(--surface));
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      color-mix(in srgb, var(--point-badge-color) 16%, transparent),
+      transparent 57%
+    ),
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--point-badge-color) 8%, var(--surface)),
+      var(--surface)
+    );
   border: 1px solid
-    color-mix(in srgb, var(--point-badge-color) 24%, var(--border));
-  border-radius: 13px;
+    color-mix(in srgb, var(--point-badge-color) 33%, var(--border));
+  border-radius: 15px;
+}
+.point-badge--full::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -34px;
+  right: -24px;
+  width: 98px;
+  height: 98px;
+  border: 1px solid
+    color-mix(in srgb, var(--point-badge-color) 28%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 8px color-mix(in srgb, var(--point-badge-color) 5%, transparent),
+    0 0 0 17px color-mix(in srgb, var(--point-badge-color) 4%, transparent);
+}
+.point-badge--full > * {
+  position: relative;
+  z-index: 1;
 }
 .point-badge--full.is-earned {
-  box-shadow: 0 5px 13px
-    color-mix(in srgb, var(--point-badge-color) 12%, transparent);
+  box-shadow:
+    0 7px 17px color-mix(in srgb, var(--point-badge-color) 16%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 60%, transparent);
 }
 .point-badge--full.is-locked {
   opacity: 0.7;
 }
 .point-badge-emblem {
-  width: 37px;
-  height: 37px;
-  flex: 0 0 37px;
+  position: relative;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
   display: grid;
   place-items: center;
-  color: var(--point-badge-color);
-  background: color-mix(in srgb, var(--point-badge-color) 16%, var(--surface));
-  border: 1px solid
-    color-mix(in srgb, var(--point-badge-color) 35%, var(--border));
-  border-radius: 12px;
+  color: #fff;
+  background: radial-gradient(
+    circle at 31% 24%,
+    var(--point-badge-light),
+    var(--point-badge-color) 62%,
+    var(--point-badge-deep)
+  );
+  border: 2px solid color-mix(in srgb, var(--point-badge-light) 72%, #fff);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, #fff 35%, transparent),
+    0 4px 9px color-mix(in srgb, var(--point-badge-deep) 34%, transparent);
+}
+.point-badge-emblem::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, #fff 72%, transparent);
+  border-radius: 50%;
+}
+.point-badge-emblem svg {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 2px rgba(24, 36, 48, 0.45));
+}
+.point-badge--blue.is-earned .point-badge-emblem {
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.36),
+    0 0 13px color-mix(in srgb, var(--point-badge-color) 38%, transparent);
 }
 .point-badge--gold.is-earned .point-badge-emblem {
   box-shadow:
-    inset 0 0 0 1px
-      color-mix(in srgb, var(--point-badge-color) 20%, transparent),
-    0 0 11px color-mix(in srgb, var(--point-badge-color) 24%, transparent);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.43),
+    0 0 15px color-mix(in srgb, var(--point-badge-color) 43%, transparent);
 }
 .point-badge-copy {
   min-width: 0;
@@ -2720,9 +2780,11 @@ canvas {
 .point-badge-status {
   flex: none;
   margin-left: auto;
-  padding: 4px 6px;
+  padding: 4px 7px;
   color: var(--point-badge-color);
-  background: color-mix(in srgb, var(--point-badge-color) 10%, var(--surface));
+  background: color-mix(in srgb, var(--point-badge-color) 12%, var(--surface));
+  border: 1px solid
+    color-mix(in srgb, var(--point-badge-color) 20%, var(--border));
   border-radius: 99px;
   font-size: 8px;
   font-weight: 800;
@@ -2745,6 +2807,159 @@ canvas {
 }
 .point-badge--compact svg {
   flex: 0 0 auto;
+}
+
+.badge-pin-cluster {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+}
+.badge-pin {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding: 1px;
+  background: conic-gradient(
+    from 25deg,
+    var(--point-badge-light),
+    var(--point-badge-color),
+    var(--point-badge-deep),
+    var(--point-badge-light)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  border-radius: 50%;
+  box-shadow:
+    0 3px 7px rgba(5, 14, 25, 0.48),
+    0 0 9px color-mix(in srgb, var(--point-badge-color) 60%, transparent);
+  animation:
+    badge-pin-pop 0.46s cubic-bezier(0.2, 0.85, 0.28, 1.25) both,
+    badge-pin-glow 2.4s ease-in-out 0.46s infinite alternate;
+}
+.badge-pin::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 31% 24%,
+    var(--point-badge-light),
+    var(--point-badge-color) 64%,
+    var(--point-badge-deep)
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+.badge-pin::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.82);
+  animation: badge-pin-glint 1.8s ease-in-out infinite alternate;
+}
+.badge-pin-seal {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  filter: drop-shadow(0 1px 2px rgba(13, 28, 43, 0.62));
+}
+.badge-pin-seal svg {
+  display: block;
+  stroke-width: 2.4;
+}
+.badge-pin--slot-1 {
+  top: -6px;
+  right: -7px;
+}
+.badge-pin--slot-2 {
+  top: 10px;
+  right: -10px;
+  animation-delay: 0.08s, 0.54s;
+}
+.badge-pin--slot-3 {
+  top: 26px;
+  right: -7px;
+  animation-delay: 0.16s, 0.62s;
+}
+.hall-avatar-badge-pins .badge-pin {
+  width: 18px;
+  height: 18px;
+}
+.hall-avatar-badge-pins .badge-pin--slot-1 {
+  top: -5px;
+  right: -6px;
+}
+.hall-avatar-badge-pins .badge-pin--slot-2 {
+  top: 10px;
+  right: -8px;
+}
+.hall-avatar-badge-pins .badge-pin--slot-3 {
+  top: 25px;
+  right: -6px;
+}
+.profile-avatar-badge-wrap {
+  position: relative;
+  width: 63px;
+  height: 63px;
+  flex: 0 0 63px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+.profile-avatar-badge-pins .badge-pin {
+  width: 23px;
+  height: 23px;
+}
+.profile-avatar-badge-pins .badge-pin--slot-1 {
+  top: -8px;
+  right: -8px;
+}
+.profile-avatar-badge-pins .badge-pin--slot-2 {
+  top: 15px;
+  right: -11px;
+}
+.profile-avatar-badge-pins .badge-pin--slot-3 {
+  top: 38px;
+  right: -8px;
+}
+@keyframes badge-pin-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.35) rotate(-28deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes badge-pin-glow {
+  from {
+    filter: brightness(0.94);
+  }
+  to {
+    filter: brightness(1.18);
+  }
+}
+@keyframes badge-pin-glint {
+  from {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 .profile-badges-card {
   margin-top: 14px;
@@ -3348,5 +3563,442 @@ canvas {
   .review-code-block pre {
     max-height: 300px;
     font-size: 10px;
+  }
+}
+
+/* Shared support tokens; detailed student layout loads with its lazy page. */
+.student-support-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.83fr) minmax(0, 1.17fr);
+  gap: 13px;
+  align-items: start;
+}
+.student-support-form,
+.student-support-thread {
+  min-width: 0;
+  padding: 18px;
+}
+.student-support-form .card-heading,
+.student-support-thread .card-heading {
+  align-items: center;
+  margin-bottom: 15px;
+}
+.student-support-form .card-heading h3,
+.student-support-thread .card-heading h3 {
+  margin: 4px 0 0;
+  color: var(--text-strong);
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+.student-support-form .card-heading svg {
+  flex: 0 0 auto;
+}
+.support-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+.support-field input,
+.support-field select,
+.support-field textarea,
+.admin-support-reply-form textarea {
+  width: 100%;
+  min-width: 0;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  outline: 0;
+  font-size: 11px;
+  line-height: 1.55;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.support-field input,
+.support-field select {
+  height: 39px;
+  padding: 0 10px;
+}
+.support-field textarea,
+.admin-support-reply-form textarea {
+  min-height: 112px;
+  padding: 10px 11px;
+  resize: vertical;
+}
+.support-field input:focus,
+.support-field select:focus,
+.support-field textarea:focus,
+.admin-support-reply-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.support-field input::placeholder,
+.support-field textarea::placeholder,
+.admin-support-reply-form textarea::placeholder {
+  color: var(--text-muted);
+}
+.support-field > small {
+  justify-self: end;
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 500;
+}
+.support-select-wrap {
+  position: relative;
+  display: block;
+}
+.support-select-wrap > svg {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  color: var(--accent-strong);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.support-select-wrap select {
+  padding-left: 33px;
+}
+.student-support-submit {
+  min-height: 38px;
+  padding: 0 13px;
+  font-size: 11px;
+}
+.student-support-thread .card-heading {
+  flex-wrap: wrap;
+}
+.student-support-thread .card-heading .button {
+  flex: none;
+}
+.student-support-request-list {
+  display: grid;
+  gap: 10px;
+}
+.student-support-request {
+  min-width: 0;
+  padding: 13px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.support-request-topline,
+.student-support-reply-heading,
+.admin-support-saved-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.support-category {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 750;
+}
+.support-category-suggestion {
+  color: #94631e;
+  background: color-mix(in srgb, #e4a63b 10%, var(--surface));
+  border-color: color-mix(in srgb, #e4a63b 28%, var(--border));
+}
+.support-request-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--warning);
+  font-size: 9px;
+  font-weight: 700;
+}
+.support-request-status.is-replied {
+  color: var(--success);
+}
+.student-support-request h4 {
+  margin: 10px 0 5px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+.support-request-message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-request-date {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.student-support-reply,
+.admin-support-saved-reply {
+  margin-top: 11px;
+  padding: 11px;
+  background: color-mix(in srgb, var(--success) 5%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--success) 22%, var(--border));
+  border-radius: 10px;
+}
+.student-support-reply-heading > span,
+.admin-support-saved-heading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 750;
+}
+.student-support-reply-heading > small,
+.admin-support-saved-heading > small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.student-support-reply > p,
+.admin-support-saved-reply > p {
+  margin: 7px 0 9px;
+  color: var(--text-primary);
+  font-size: 10px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-email-copy,
+.admin-support-email-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.support-email-copy svg,
+.admin-support-email-status svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.support-email-sent {
+  color: var(--success);
+}
+.support-email-failed {
+  color: var(--danger);
+}
+.support-email-pending,
+.support-email-sending {
+  color: var(--warning);
+}
+.support-thread-empty,
+.admin-support-empty {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 20px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 10px;
+}
+.support-thread-empty svg,
+.admin-support-empty svg {
+  color: var(--accent-strong);
+}
+.support-thread-empty b,
+.admin-support-empty b {
+  color: var(--text-primary);
+  font-size: 11px;
+}
+.support-thread-empty span,
+.admin-support-empty span {
+  line-height: 1.55;
+}
+
+/* Admin support inbox: retain replied tickets until Resend accepts the email for sending. */
+.admin-support-toolbar {
+  margin-top: 18px;
+}
+.admin-support-list {
+  display: grid;
+  gap: 12px;
+}
+.admin-support-card {
+  min-width: 0;
+  padding: clamp(15px, 2.2vw, 22px);
+}
+.admin-support-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.admin-support-title-wrap {
+  min-width: 0;
+}
+.admin-support-title-wrap h2 {
+  margin: 7px 0 8px;
+  color: var(--text-strong);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.admin-support-student {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 12px;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.admin-support-student b {
+  color: var(--text-primary);
+  font-size: 10px;
+}
+.admin-support-student a {
+  color: var(--accent-strong);
+  overflow-wrap: anywhere;
+}
+.admin-support-student a:hover {
+  text-decoration: underline;
+}
+.admin-support-date {
+  display: block;
+  margin-top: 7px;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.admin-support-original {
+  margin-top: 13px;
+  padding: 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.admin-support-original > span,
+.admin-support-reply-form > label {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 750;
+}
+.admin-support-original p {
+  margin: 6px 0 0;
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.admin-support-reply-form {
+  margin-top: 13px;
+}
+.admin-support-reply-form > label {
+  display: block;
+  margin-bottom: 6px;
+}
+.admin-support-reply-form textarea {
+  min-height: 88px;
+}
+.admin-support-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.admin-support-actions > small {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.admin-support-actions .button {
+  flex: none;
+}
+.admin-support-saved-reply {
+  margin-top: 13px;
+}
+.admin-support-saved-reply .admin-support-email-status {
+  margin-top: 8px;
+}
+.admin-support-retry {
+  min-height: 31px !important;
+  margin-top: 10px;
+  font-size: 10px !important;
+}
+.admin-support-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
+}
+.admin-support-delete-hold {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 5px;
+  color: var(--warning);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.admin-support-delete-hold svg {
+  flex: none;
+  margin-top: 1px;
+}
+.admin-support-delete {
+  flex: none;
+}
+.admin-support-delete:not(:disabled):hover {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+.admin-support-empty {
+  margin-top: 5px;
+}
+
+@media (max-width: 900px) {
+  .student-support-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .admin-support-card-heading {
+    flex-direction: column;
+  }
+  .admin-support-card-heading > .review-status-chip {
+    align-self: flex-start;
+  }
+  .admin-support-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-support-actions .button {
+    width: 100%;
+  }
+}
+@media (max-width: 520px) {
+  .student-support-form,
+  .student-support-thread,
+  .admin-support-card {
+    padding: 13px;
+  }
+  .support-request-topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .admin-support-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .admin-support-delete {
+    width: 100%;
   }
 }
