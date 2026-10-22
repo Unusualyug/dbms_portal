@@ -2260,8 +2260,32 @@ canvas {
   color: var(--text-muted);
   font-size: 9px;
 }
+.hall-row.hall-rank-top-1,
+.hall-row.hall-rank-top-2,
+.hall-row.hall-rank-top-3 {
+  position: relative;
+  isolation: isolate;
+}
 .hall-rank-top-1 {
-  background: color-mix(in srgb, #e9b949 7%, var(--surface));
+  --hall-fire-hot: #fff3b0;
+  --hall-fire-main: #ff682b;
+  --hall-fire-deep: #e52b1e;
+  --hall-fire-glow: rgba(255, 78, 28, 0.66);
+  background: color-mix(in srgb, #ff5729 6%, var(--surface));
+}
+.hall-rank-top-2 {
+  --hall-fire-hot: #e7ffff;
+  --hall-fire-main: #20dfff;
+  --hall-fire-deep: #347cff;
+  --hall-fire-glow: rgba(30, 157, 255, 0.7);
+  background: color-mix(in srgb, #237dff 5%, var(--surface));
+}
+.hall-rank-top-3 {
+  --hall-fire-hot: #fff;
+  --hall-fire-main: #e8f3ff;
+  --hall-fire-deep: #a9c3e2;
+  --hall-fire-glow: rgba(174, 204, 239, 0.76);
+  background: color-mix(in srgb, #d8e9fc 16%, var(--surface));
 }
 .hall-rank-top-1 .hall-rank {
   color: #9a6a11;
@@ -2277,6 +2301,197 @@ canvas {
   color: #98664b;
   background: #f7e9e1;
   border-color: #eed2c2;
+}
+.hall-fire-effect {
+  position: absolute;
+  z-index: 0;
+  inset: 2px;
+  overflow: hidden;
+  border-radius: 11px;
+  pointer-events: none;
+}
+.hall-fire-effect ~ * {
+  position: relative;
+  z-index: 1;
+}
+.hall-fire-border {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  background: conic-gradient(
+      from var(--hall-fire-angle, 0deg),
+      transparent 0deg 8deg,
+      var(--hall-fire-deep) 17deg,
+      var(--hall-fire-hot) 25deg,
+      var(--hall-fire-main) 34deg,
+      transparent 52deg 88deg,
+      var(--hall-fire-main) 101deg,
+      var(--hall-fire-hot) 110deg,
+      transparent 126deg 178deg,
+      var(--hall-fire-deep) 194deg,
+      var(--hall-fire-hot) 207deg,
+      var(--hall-fire-main) 219deg,
+      transparent 238deg 276deg,
+      var(--hall-fire-main) 291deg,
+      var(--hall-fire-hot) 302deg,
+      transparent 318deg 360deg
+    )
+    border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 3px var(--hall-fire-glow))
+    drop-shadow(0 0 8px var(--hall-fire-glow));
+  animation:
+    hall-fire-turn 4.8s linear infinite,
+    hall-fire-border-flicker 1.4s ease-in-out infinite alternate;
+}
+.hall-fire-flames {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      ellipse 13% 115% at 0% 55%,
+      color-mix(in srgb, var(--hall-fire-main) 62%, transparent),
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 13% 115% at 100% 46%,
+      color-mix(in srgb, var(--hall-fire-main) 62%, transparent),
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 38% 100% at 20% 0%,
+      color-mix(in srgb, var(--hall-fire-deep) 46%, transparent),
+      transparent 76%
+    ),
+    radial-gradient(
+      ellipse 38% 100% at 78% 100%,
+      color-mix(in srgb, var(--hall-fire-hot) 52%, transparent),
+      transparent 76%
+    ),
+    radial-gradient(
+      ellipse 32% 90% at 50% 0%,
+      color-mix(in srgb, var(--hall-fire-main) 36%, transparent),
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 32% 90% at 50% 100%,
+      color-mix(in srgb, var(--hall-fire-deep) 34%, transparent),
+      transparent 78%
+    );
+  opacity: 0.43;
+  filter: blur(5px);
+  mix-blend-mode: screen;
+  transform-origin: center;
+  animation: hall-fire-flow 1.35s ease-in-out infinite alternate;
+}
+.hall-fire-spark {
+  position: absolute;
+  z-index: 3;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--hall-fire-hot);
+  box-shadow:
+    0 0 4px 2px var(--hall-fire-main),
+    0 0 9px var(--hall-fire-glow);
+  opacity: 0;
+  animation: hall-fire-spark-rise 1.9s ease-in-out infinite;
+}
+.hall-fire-spark-1 {
+  top: 19%;
+  left: 5%;
+  animation-delay: -0.2s;
+}
+.hall-fire-spark-2 {
+  top: 8%;
+  left: 23%;
+  animation-delay: -0.95s;
+}
+.hall-fire-spark-3 {
+  right: 33%;
+  bottom: 5%;
+  animation-delay: -0.55s;
+}
+.hall-fire-spark-4 {
+  top: 7%;
+  right: 22%;
+  animation-delay: -1.35s;
+}
+.hall-fire-spark-5 {
+  right: 7%;
+  bottom: 11%;
+  animation-delay: -0.75s;
+}
+.hall-fire-spark-6 {
+  top: 48%;
+  right: 2%;
+  animation-delay: -1.65s;
+}
+@property --hall-fire-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes hall-fire-turn {
+  to {
+    --hall-fire-angle: 360deg;
+  }
+}
+@keyframes hall-fire-border-flicker {
+  from {
+    opacity: 0.73;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hall-fire-flow {
+  from {
+    opacity: 0.27;
+    transform: translateY(1px) scale(0.985);
+  }
+  to {
+    opacity: 0.58;
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+@keyframes hall-fire-spark-rise {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0) scale(0.55);
+  }
+  38% {
+    opacity: 0.9;
+    transform: translate3d(1px, 0, 0) scale(1.2);
+  }
+  72% {
+    opacity: 0.25;
+    transform: translate3d(-1px, -5px, 0) scale(0.75);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hall-fire-border,
+  .hall-fire-flames,
+  .hall-fire-spark {
+    animation: none;
+  }
+  .hall-fire-border {
+    opacity: 0.9;
+  }
+  .hall-fire-flames {
+    opacity: 0.38;
+  }
 }
 .hall-footnote {
   display: flex;
