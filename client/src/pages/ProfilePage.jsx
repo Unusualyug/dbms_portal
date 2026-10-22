@@ -22,6 +22,11 @@ import { api } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { formatDate } from "../utils/format.js";
 import SectionHeading from "../components/SectionHeading.jsx";
+import PointBadge from "../components/PointBadge.jsx";
+import {
+  getEarnedPointBadges,
+  POINT_MILESTONE_BADGES,
+} from "../utils/pointBadges.js";
 
 const initialPasswordForm = {
   currentPassword: "",
@@ -48,6 +53,11 @@ export default function ProfilePage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const totalPoints = Math.max(0, Number(user?.totalPoints) || 0);
+  const earnedPointBadges = getEarnedPointBadges(totalPoints);
+  const nextPointBadge = POINT_MILESTONE_BADGES.find(
+    (badge) => totalPoints < badge.points,
+  );
 
   useEffect(() => {
     refresh();
@@ -290,6 +300,38 @@ export default function ProfilePage() {
           </div>
         </section>
       </div>
+
+      {user?.role === "student" && (
+        <section
+          className="surface-card profile-badges-card"
+          aria-labelledby="profile-badges-title"
+        >
+          <div className="card-heading profile-badges-heading">
+            <div>
+              <span className="eyebrow">POINT MILESTONES</span>
+              <h2 id="profile-badges-title">Achievement badges</h2>
+            </div>
+            <span className="profile-badge-count">
+              {earnedPointBadges.length} / {POINT_MILESTONE_BADGES.length}{" "}
+              earned
+            </span>
+          </div>
+          <div className="profile-badges-grid">
+            {POINT_MILESTONE_BADGES.map((badge) => (
+              <PointBadge
+                key={badge.id}
+                badge={badge}
+                earned={totalPoints >= badge.points}
+              />
+            ))}
+          </div>
+          <p className="profile-badges-note">
+            {nextPointBadge
+              ? `${(nextPointBadge.points - totalPoints).toLocaleString()} more points to unlock ${nextPointBadge.name}.`
+              : "All milestone badges unlocked. Keep up the great work!"}
+          </p>
+        </section>
+      )}
 
       <div className="profile-action-grid">
         <section className="surface-card profile-action-card">
