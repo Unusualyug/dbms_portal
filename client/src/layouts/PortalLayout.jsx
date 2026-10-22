@@ -76,6 +76,12 @@ const studentLinks = [
     icon: LifeBuoy,
     group: "LEARNING",
   },
+  {
+    to: "/student/exam-result",
+    label: "Exam Result",
+    icon: GraduationCap,
+    group: "LEARNING",
+  },
   { to: "/student/profile", label: "Profile", icon: Users, group: "ACCOUNT" },
 ];
 const adminLinks = [
@@ -93,6 +99,7 @@ const adminLinks = [
     icon: ClipboardCheck,
   },
   { to: "/admin/support", label: "Contact & Support", icon: LifeBuoy },
+  { to: "/admin/exam-result", label: "Exam Result", icon: GraduationCap },
   { to: "/admin/content", label: "Content verification", icon: FileCheck2 },
 ];
 
@@ -347,5 +354,6 @@ function breadcrumb(path) {
   const last = path.split("/").filter(Boolean).pop() || "dashboard";
   if (last === "student" || last === "admin") return "Overview";
   if (last === "support") return "Contact & Support";
+  if (last === "exam-result") return "Exam Result";
   return last.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

@@ -32,6 +32,12 @@ const AdminSubmissionsPage = lazy(
   () => import("./pages/AdminSubmissionsPage.jsx"),
 );
 const AdminSupportPage = lazy(() => import("./pages/AdminSupportPage.jsx"));
+const StudentExamResultPage = lazy(
+  () => import("./pages/StudentExamResultPage.jsx"),
+);
+const AdminExamResultPage = lazy(
+  () => import("./pages/AdminExamResultPage.jsx"),
+);
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage.jsx"));
 
 function HomeRedirect() {
@@ -73,6 +79,7 @@ export default function App() {
             <Route path="progress" element={<ProgressPage />} />
             <Route path="hall-of-fame" element={<HallOfFamePage />} />
             <Route path="support" element={<StudentSupportPage />} />
+            <Route path="exam-result" element={<StudentExamResultPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
         </Route>
@@ -86,6 +93,7 @@ export default function App() {
             <Route path="content" element={<AdminContentPage />} />
             <Route path="submissions" element={<AdminSubmissionsPage />} />
             <Route path="support" element={<AdminSupportPage />} />
+            <Route path="exam-result" element={<AdminExamResultPage />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />

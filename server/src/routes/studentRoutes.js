@@ -10,6 +10,7 @@ const practiceArena = require("../controllers/practiceArenaController");
 const activity = require("../controllers/activityController");
 const code = require("../controllers/codeController");
 const support = require("../controllers/supportController");
+const examResult = require("../controllers/examResultController");
 const router = express.Router();
 const supportSubmissionLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -31,6 +32,7 @@ router.post(
   supportSubmissionLimiter,
   asyncHandler(support.createStudentSupportMessage),
 );
+router.get("/exam-result", asyncHandler(examResult.listStudentExamResults));
 router.get("/modules", asyncHandler(student.getModules));
 router.get("/modules/:moduleId", asyncHandler(student.getModule));
 router.get("/topics/:topicId", asyncHandler(student.getTopic));

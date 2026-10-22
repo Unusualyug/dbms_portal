@@ -7,6 +7,7 @@ const PracticeArenaAttempt = require("../models/PracticeArenaAttempt");
 const ModuleManualProgress = require("../models/ModuleManualProgress");
 const LearningTime = require("../models/LearningTime");
 const ActivityLog = require("../models/ActivityLog");
+const ExamResult = require("../models/ExamResult");
 
 // Timer.js is an alias of LearningTimer.js, so there is only one timer collection.
 const STUDENT_DATA_COLLECTIONS = Object.freeze([
@@ -19,6 +20,7 @@ const STUDENT_DATA_COLLECTIONS = Object.freeze([
   Object.freeze({ name: "moduleManualProgress", model: ModuleManualProgress }),
   Object.freeze({ name: "learningTime", model: LearningTime }),
   Object.freeze({ name: "activityLogs", model: ActivityLog }),
+  Object.freeze({ name: "examResults", model: ExamResult }),
 ]);
 
 /** Delete every persisted student-owned record. Running it again is safe if a previous

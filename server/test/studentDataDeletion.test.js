@@ -1,30 +1,37 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { STUDENT_DATA_COLLECTIONS, deleteStudentData } = require('../src/services/studentDataDeletionService');
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const {
+  STUDENT_DATA_COLLECTIONS,
+  deleteStudentData,
+} = require("../src/services/studentDataDeletionService");
 
-test('student removal includes every student-owned data collection', () => {
-  assert.deepEqual(STUDENT_DATA_COLLECTIONS.map((entry) => entry.name), [
-    'learningTimers',
-    'sessions',
-    'topicProgress',
-    'questionAttempts',
-    'officialPracticalAttempts',
-    'practiceArenaAttempts',
-    'moduleManualProgress',
-    'learningTime',
-    'activityLogs',
-  ]);
+test("student removal includes every student-owned data collection", () => {
+  assert.deepEqual(
+    STUDENT_DATA_COLLECTIONS.map((entry) => entry.name),
+    [
+      "learningTimers",
+      "sessions",
+      "topicProgress",
+      "questionAttempts",
+      "officialPracticalAttempts",
+      "practiceArenaAttempts",
+      "moduleManualProgress",
+      "learningTime",
+      "activityLogs",
+      "examResults",
+    ],
+  );
 });
 
-test('student data cleanup deletes each collection for the selected student and returns counts', async () => {
-  const studentId = 'student-object-id';
+test("student data cleanup deletes each collection for the selected student and returns counts", async () => {
+  const studentId = "student-object-id";
   const calls = [];
   const collections = STUDENT_DATA_COLLECTIONS.map(({ name }) => ({
     name,
     model: {
       async deleteMany(filter) {
         calls.push({ name, filter });
-        return { deletedCount: name === 'sessions' ? 2 : 1 };
+        return { deletedCount: name === "sessions" ? 2 : 1 };
       },
     },
   }));
@@ -37,12 +44,36 @@ test('student data cleanup deletes each collection for the selected student and 
   assert.equal(deletedCounts.activityLogs, 1);
 });
 
-test('student cleanup stops and surfaces a collection deletion error for retry', async () => {
-  const error = new Error('database unavailable');
+test("student cleanup stops and surfaces a collection deletion error for retry", async () => {
+  const error = new Error("database unavailable");
   const collections = [
-    { name: 'sessions', model: { async deleteMany() { return { deletedCount: 1 }; } } },
-    { name: 'topicProgress', model: { async deleteMany() { throw error; } } },
-    { name: 'activityLogs', model: { async deleteMany() { assert.fail('cleanup must stop after an error'); } } },
+    {
+      name: "sessions",
+      model: {
+        async deleteMany() {
+          return { deletedCount: 1 };
+        },
+      },
+    },
+    {
+      name: "topicProgress",
+      model: {
+        async deleteMany() {
+          throw error;
+        },
+      },
+    },
+    {
+      name: "activityLogs",
+      model: {
+        async deleteMany() {
+          assert.fail("cleanup must stop after an error");
+        },
+      },
+    },
   ];
-  await assert.rejects(deleteStudentData('student-object-id', collections), error);
+  await assert.rejects(
+    deleteStudentData("student-object-id", collections),
+    error,
+  );
 });

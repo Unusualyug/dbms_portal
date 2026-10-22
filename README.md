@@ -72,6 +72,10 @@ The current `/run` API paths are retained only as backward-compatible aliases; t
 
 `POST /api/student/code/run` integrates a server-side Judge0 endpoint for general languages (JavaScript, Python, Java, C++). It is not used to claim Oracle SQL/PLSQL correctness. Judge0 URL/key stay in backend environment variables. Never enable its SQLite language as an Oracle substitute.
 
+## Exam Result
+
+The admin and student sidebars have an **Exam Result** section. Admins can create Session 1, Session 2, and ALA assessments for an academic year, semester, and class section; add subjects and maximum marks; enter student marks; and publish or unpublish an assessment. Publishing is blocked until every active student in the selected cohort has a mark for every subject. Students can only view their own marks after the assessment is published. Totals and percentages are calculated from the entered marks. Draft assessments can be edited or deleted; published assessments must be unpublished before changes can be made.
+
 ## Interface, accessibility and themes
 
 - The React client uses a shared responsive design system with locally bundled Inter typography, light/dark color tokens, and a theme toggle on the landing, sign-in/sign-up, and authenticated workspace navigation.

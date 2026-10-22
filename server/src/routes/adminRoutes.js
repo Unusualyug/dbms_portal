@@ -6,6 +6,7 @@ const admin = require("../controllers/adminController");
 const content = require("../controllers/contentController");
 const submissions = require("../controllers/submissionReviewController");
 const support = require("../controllers/supportController");
+const examResult = require("../controllers/examResultController");
 const router = express.Router();
 
 router.use(requireDatabase, requireAuth, requireRole("admin"));
@@ -37,6 +38,23 @@ router.post(
   asyncHandler(support.retrySupportReplyEmail),
 );
 router.delete("/support/:id", asyncHandler(support.deleteSupportMessage));
+router.get("/exam-result", asyncHandler(examResult.listAdminAssessments));
+router.post("/exam-result", asyncHandler(examResult.createAssessment));
+router.get("/exam-result/:id", asyncHandler(examResult.getAdminAssessment));
+router.patch("/exam-result/:id", asyncHandler(examResult.updateAssessment));
+router.patch(
+  "/exam-result/:id/marks",
+  asyncHandler(examResult.saveAssessmentMarks),
+);
+router.post(
+  "/exam-result/:id/publish",
+  asyncHandler(examResult.publishAssessment),
+);
+router.post(
+  "/exam-result/:id/unpublish",
+  asyncHandler(examResult.unpublishAssessment),
+);
+router.delete("/exam-result/:id", asyncHandler(examResult.deleteAssessment));
 router.get("/export/:type", asyncHandler(admin.exportCsv));
 
 module.exports = router;
