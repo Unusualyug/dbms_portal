@@ -13,6 +13,7 @@ import {
   FileCheck2,
   GraduationCap,
   LayoutDashboard,
+  LifeBuoy,
   LogOut,
   Menu,
   ShieldCheck,
@@ -85,6 +86,7 @@ const adminLinks = [
     label: "Review submissions",
     icon: ClipboardCheck,
   },
+  { to: "/admin/support", label: "Contact & Support", icon: LifeBuoy },
   { to: "/admin/content", label: "Content verification", icon: FileCheck2 },
 ];
 

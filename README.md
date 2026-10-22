@@ -62,6 +62,10 @@ Each student has a `ModuleManualProgress` record per active course module. Its `
 
 When an admin approves the final official practical in a module, the portal queues one completion email to the student's saved email address. Practice Arena challenges do not count, and submissions or rejected work do not trigger this notice. Email status is persisted per student/module to prevent repeat messages; the worker retries transient failures. Only completions that transition after this feature is deployed are notified. Configure `RESEND_API_KEY` and `RESEND_FROM_EMAIL` on the server. Resend sends over HTTPS, which works with Render Free where outbound SMTP ports are blocked. To mail student addresses, verify a domain you control in Resend and use a sender on that domain; never put the API key in client code or commit it.
 
+## Contact & Support
+
+Students can send a question or suggestion from the Contact & Support section below the Hall of Fame. The administrator reads requests in the admin Contact & Support inbox and can reply. Replies are saved in the student portal thread, and Resend attempts to email the student's saved account address. The inbox shows whether the email is pending, sending, accepted by Resend, or failed. “Accepted” means Resend accepted the send request; mailbox arrival is not independently verified. The portal reply stays visible if email setup is missing or Resend rejects the email, and the ticket cannot be deleted until Resend accepts it for sending. The admin's **Read & delete** action then permanently deletes the request and saved reply from the database; any email accepted by Resend is outside the portal and cannot be recalled. Support replies use the same server-side `RESEND_API_KEY` and verified `RESEND_FROM_EMAIL` configuration described above.
+
 The current `/run` API paths are retained only as backward-compatible aliases; they also save a submission and do not execute SQL. No `ORACLE_LAB_URL` or Oracle connection string is needed for this workflow. If actual Oracle execution is added later, it must use a separately deployed, isolated lab adapter—not a shared personal schema.
 
 ### Judge0

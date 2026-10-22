@@ -4,7 +4,8 @@ import { api } from "../services/api.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
-import PointBadge from "../components/PointBadge.jsx";
+import BadgePins from "../components/BadgePins.jsx";
+import StudentSupportSection from "../components/StudentSupportSection.jsx";
 import { getEarnedPointBadges } from "../utils/pointBadges.js";
 
 function initials(name) {
@@ -197,6 +198,10 @@ export default function HallOfFamePage() {
                         initials(student.name)
                       )}
                     </span>
+                    <BadgePins
+                      badges={earnedBadges}
+                      className="hall-avatar-badge-pins"
+                    />
                   </span>
                   <span className="hall-student-info">
                     <b>{student.name}</b>
@@ -208,21 +213,6 @@ export default function HallOfFamePage() {
                         ? ` · Class ${student.classSection}`
                         : ""}
                     </small>
-                    {earnedBadges.length > 0 && (
-                      <span
-                        className="hall-student-badges"
-                        aria-label={`Earned badges: ${earnedBadges.map((badge) => badge.name).join(", ")}`}
-                      >
-                        {earnedBadges.map((badge) => (
-                          <PointBadge
-                            key={badge.id}
-                            badge={badge}
-                            earned
-                            compact
-                          />
-                        ))}
-                      </span>
-                    )}
                   </span>
                   <span className="hall-points">
                     <b>{student.totalPoints.toLocaleString()}</b>
@@ -241,6 +231,8 @@ export default function HallOfFamePage() {
           </span>
         </div>
       </section>
+
+      <StudentSupportSection />
     </div>
   );
 }

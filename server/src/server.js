@@ -11,6 +11,9 @@ const {
 const {
   startModuleCompletionEmailWorker,
 } = require("./services/moduleCompletionEmailService");
+const {
+  startSupportReplyEmailWorker,
+} = require("./services/supportReplyEmailService");
 
 async function start() {
   const app = createApp();
@@ -26,6 +29,7 @@ async function start() {
         );
       console.log("MongoDB connected.");
       startModuleCompletionEmailWorker();
+      startSupportReplyEmailWorker();
     } catch (error) {
       console.error("MongoDB connection failed:", error.message);
       process.exit(1);
