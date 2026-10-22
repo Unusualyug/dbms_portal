@@ -4002,3 +4002,108 @@ canvas {
     width: 100%;
   }
 }
+
+/* Keep the avatar photo at its original size; earned pins sit on the surrounding frame rim. */
+.hall-avatar-frame.has-badge-pins {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+  background: var(--surface-raised);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border-strong));
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 9%, transparent),
+    0 3px 9px rgba(2, 12, 24, 0.2);
+}
+.hall-avatar-frame.has-badge-pins > .hall-avatar {
+  width: 38px;
+  height: 38px;
+}
+.hall-avatar-badge-pins {
+  z-index: 5;
+}
+.hall-avatar-badge-pins .badge-pin,
+.profile-avatar-badge-pins .badge-pin {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-width: 1px;
+  box-shadow:
+    0 1px 4px rgba(5, 14, 25, 0.48),
+    0 0 5px color-mix(in srgb, var(--point-badge-color) 62%, transparent);
+}
+.hall-avatar-badge-pins .badge-pin--slot-1,
+.profile-avatar-badge-pins .badge-pin--slot-1 {
+  top: 0;
+  right: 0;
+}
+.hall-avatar-badge-pins .badge-pin--slot-2 {
+  top: 12px;
+  right: 0;
+}
+.hall-avatar-badge-pins .badge-pin--slot-3 {
+  top: 24px;
+  right: 0;
+}
+.profile-avatar-badge-pins .badge-pin--slot-2 {
+  top: 17px;
+  right: 0;
+}
+.profile-avatar-badge-pins .badge-pin--slot-3 {
+  top: 34px;
+  right: 0;
+}
+.hall-avatar-badge-pins .badge-pin-seal,
+.profile-avatar-badge-pins .badge-pin-seal {
+  width: 6px;
+  height: 6px;
+}
+.hall-avatar-badge-pins .badge-pin-seal svg,
+.profile-avatar-badge-pins .badge-pin-seal svg {
+  width: 6px;
+  height: 6px;
+}
+.profile-avatar-badge-wrap.has-badge-pins {
+  width: 77px;
+  height: 77px;
+  flex-basis: 77px;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border-strong));
+  border-radius: 29px;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 9%, transparent),
+    0 3px 10px rgba(2, 12, 24, 0.18);
+}
+.profile-avatar-badge-wrap.has-badge-pins > .profile-avatar-wrap {
+  position: relative;
+  z-index: 1;
+  width: 63px;
+  height: 63px;
+}
+.profile-avatar-badge-wrap.has-badge-pins > .profile-avatar-badge-pins {
+  z-index: 5;
+}
+
+@media (max-width: 520px) {
+  .hall-avatar-frame.has-badge-pins {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+  .hall-avatar-frame.has-badge-pins > .hall-avatar {
+    width: 34px;
+    height: 34px;
+  }
+  .hall-avatar-badge-pins .badge-pin,
+  .profile-avatar-badge-pins .badge-pin {
+    width: 8px;
+    height: 8px;
+  }
+  .hall-avatar-badge-pins .badge-pin--slot-2 {
+    top: 10px;
+    right: 0;
+  }
+  .hall-avatar-badge-pins .badge-pin--slot-3 {
+    top: 20px;
+    right: 0;
+  }
+}
