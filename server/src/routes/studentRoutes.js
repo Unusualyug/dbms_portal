@@ -1,4 +1,5 @@
 const express = require("express");
+const { rateLimit } = require("express-rate-limit");
 const asyncHandler = require("../utils/asyncHandler");
 const requireDatabase = require("../middleware/requireDatabase");
 const { requireAuth, requireRole } = require("../middleware/auth");
@@ -8,11 +9,28 @@ const practicals = require("../controllers/practicalController");
 const practiceArena = require("../controllers/practiceArenaController");
 const activity = require("../controllers/activityController");
 const code = require("../controllers/codeController");
+const support = require("../controllers/supportController");
 const router = express.Router();
+const supportSubmissionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error:
+      "You have sent several support requests recently. Please try again later.",
+  },
+});
 
 router.use(requireDatabase, requireAuth, requireRole("student"));
 router.get("/dashboard", asyncHandler(student.getDashboard));
 router.get("/hall-of-fame", asyncHandler(student.getHallOfFame));
+router.get("/support", asyncHandler(support.listStudentSupportMessages));
+router.post(
+  "/support",
+  supportSubmissionLimiter,
+  asyncHandler(support.createStudentSupportMessage),
+);
 router.get("/modules", asyncHandler(student.getModules));
 router.get("/modules/:moduleId", asyncHandler(student.getModule));
 router.get("/topics/:topicId", asyncHandler(student.getTopic));

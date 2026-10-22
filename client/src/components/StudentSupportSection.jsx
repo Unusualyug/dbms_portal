@@ -4,7 +4,6 @@ import {
   CircleHelp,
   Clock3,
   Lightbulb,
-  LifeBuoy,
   Mail,
   MessageCircle,
   RefreshCw,
@@ -91,25 +90,7 @@ export default function StudentSupportSection() {
   };
 
   return (
-    <section
-      className="student-support-section"
-      aria-labelledby="student-support-title"
-    >
-      <div className="student-support-intro">
-        <span className="student-support-icon">
-          <LifeBuoy size={20} />
-        </span>
-        <div>
-          <span className="eyebrow">WE’RE HERE TO HELP</span>
-          <h2 id="student-support-title">Contact &amp; Support</h2>
-          <p>
-            Send a question or suggestion to the portal admin. Replies appear
-            here, and Resend attempts to email your saved account address; the
-            status is shown below.
-          </p>
-        </div>
-      </div>
-
+    <div className="student-support-workspace">
       {error && <Notice type="error">{error}</Notice>}
       {success && <Notice type="success">{success}</Notice>}
 
@@ -267,6 +248,6 @@ export default function StudentSupportSection() {
           )}
         </section>
       </div>
-    </section>
+    </div>
   );
 }
