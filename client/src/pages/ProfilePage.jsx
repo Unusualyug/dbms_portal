@@ -23,6 +23,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { formatDate } from "../utils/format.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import PointBadge from "../components/PointBadge.jsx";
+import BadgePins from "../components/BadgePins.jsx";
 import {
   getEarnedPointBadges,
   POINT_MILESTONE_BADGES,
@@ -165,34 +166,42 @@ export default function ProfilePage() {
       />
       <div className="profile-layout">
         <section className="profile-card surface-card">
-          <button
-            className="profile-avatar-wrap profile-avatar-button"
-            type="button"
-            onClick={() => photoInputRef.current?.click()}
-            disabled={photoBusy}
-            aria-label={
-              user?.profilePhotoUrl
-                ? "Change profile photo"
-                : "Upload profile photo"
-            }
-            title={
-              user?.profilePhotoUrl
-                ? "Change profile photo"
-                : "Upload profile photo"
-            }
-          >
-            {user?.profilePhotoUrl ? (
-              <img
-                className="profile-avatar-image"
-                src={user.profilePhotoUrl}
-                alt=""
+          <div className="profile-avatar-badge-wrap">
+            <button
+              className="profile-avatar-wrap profile-avatar-button"
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={photoBusy}
+              aria-label={
+                user?.profilePhotoUrl
+                  ? "Change profile photo"
+                  : "Upload profile photo"
+              }
+              title={
+                user?.profilePhotoUrl
+                  ? "Change profile photo"
+                  : "Upload profile photo"
+              }
+            >
+              {user?.profilePhotoUrl ? (
+                <img
+                  className="profile-avatar-image"
+                  src={user.profilePhotoUrl}
+                  alt=""
+                />
+              ) : (
+                <span className="profile-avatar" aria-hidden="true">
+                  {user?.name?.slice(0, 1)?.toUpperCase()}
+                </span>
+              )}
+            </button>
+            {user?.role === "student" && (
+              <BadgePins
+                badges={earnedPointBadges}
+                className="profile-avatar-badge-pins"
               />
-            ) : (
-              <span className="profile-avatar" aria-hidden="true">
-                {user?.name?.slice(0, 1)?.toUpperCase()}
-              </span>
             )}
-          </button>
+          </div>
           <h2>{user?.name}</h2>
           <div className="profile-photo-tools">
             <input

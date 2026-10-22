@@ -5,7 +5,6 @@ import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
 import BadgePins from "../components/BadgePins.jsx";
-import StudentSupportSection from "../components/StudentSupportSection.jsx";
 import { getEarnedPointBadges } from "../utils/pointBadges.js";
 
 function initials(name) {
@@ -231,8 +230,6 @@ export default function HallOfFamePage() {
           </span>
         </div>
       </section>
-
-      <StudentSupportSection />
     </div>
   );
 }
