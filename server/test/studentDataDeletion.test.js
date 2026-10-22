@@ -19,6 +19,7 @@ test("student removal includes every student-owned data collection", () => {
       "learningTime",
       "activityLogs",
       "examResults",
+      "supportMessages",
     ],
   );
 });
@@ -42,6 +43,8 @@ test("student data cleanup deletes each collection for the selected student and 
   assert.equal(deletedCounts.sessions, 2);
   assert.equal(deletedCounts.practiceArenaAttempts, 1);
   assert.equal(deletedCounts.activityLogs, 1);
+  assert.equal(deletedCounts.examResults, 1);
+  assert.equal(deletedCounts.supportMessages, 1);
 });
 
 test("student cleanup stops and surfaces a collection deletion error for retry", async () => {
