@@ -149,3 +149,12 @@ npm test
 npm run validate:course
 npm run build
 ```
+
+<!-- .fire-ring {
+  animation: fire-glow 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes fire-glow {
+  from { filter: drop-shadow(0 0 4px orange); }
+  to   { filter: drop-shadow(0 0 10px red); }
+} -->

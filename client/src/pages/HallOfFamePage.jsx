@@ -4,6 +4,8 @@ import { api } from "../services/api.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
+import PointBadge from "../components/PointBadge.jsx";
+import { getEarnedPointBadges } from "../utils/pointBadges.js";
 
 function initials(name) {
   return String(name || "Student")
@@ -144,70 +146,91 @@ export default function HallOfFamePage() {
           </div>
         ) : (
           <ol className="hall-list">
-            {data.students.map((student) => (
-              <li
-                className={`hall-row ${student.rank <= 3 ? `hall-rank-top-${student.rank}` : ""}`}
-                key={student.rank}
-              >
-                {student.rank >= 1 && student.rank <= 3 && (
-                  <span className="hall-fire-effect" aria-hidden="true">
-                    <span className="hall-fire-border" />
-                    <span className="hall-fire-flames" />
-                    <span className="hall-fire-spark hall-fire-spark-1" />
-                    <span className="hall-fire-spark hall-fire-spark-2" />
-                    <span className="hall-fire-spark hall-fire-spark-3" />
-                    <span className="hall-fire-spark hall-fire-spark-4" />
-                    <span className="hall-fire-spark hall-fire-spark-5" />
-                    <span className="hall-fire-spark hall-fire-spark-6" />
-                  </span>
-                )}
-                <span className="hall-rank" aria-label={`Rank ${student.rank}`}>
-                  {student.rank === 1 ? (
-                    <Crown size={18} />
-                  ) : student.rank === 2 || student.rank === 3 ? (
-                    <Medal size={18} />
-                  ) : (
-                    `#${student.rank}`
-                  )}
-                </span>
-                <span className="hall-avatar-frame">
+            {data.students.map((student) => {
+              const earnedBadges = getEarnedPointBadges(student.totalPoints);
+              return (
+                <li
+                  className={`hall-row ${student.rank <= 3 ? `hall-rank-top-${student.rank}` : ""}`}
+                  key={student.rank}
+                >
                   {student.rank >= 1 && student.rank <= 3 && (
-                    <span className="hall-avatar-sparks" aria-hidden="true">
-                      <span className="hall-avatar-spark hall-avatar-spark-1" />
-                      <span className="hall-avatar-spark hall-avatar-spark-2" />
-                      <span className="hall-avatar-spark hall-avatar-spark-3" />
+                    <span className="hall-fire-effect" aria-hidden="true">
+                      <span className="hall-fire-border" />
+                      <span className="hall-fire-flames" />
+                      <span className="hall-fire-spark hall-fire-spark-1" />
+                      <span className="hall-fire-spark hall-fire-spark-2" />
+                      <span className="hall-fire-spark hall-fire-spark-3" />
+                      <span className="hall-fire-spark hall-fire-spark-4" />
+                      <span className="hall-fire-spark hall-fire-spark-5" />
+                      <span className="hall-fire-spark hall-fire-spark-6" />
                     </span>
                   )}
-                  <span className="hall-avatar" aria-hidden="true">
-                    {student.profilePhotoUrl ? (
-                      <img
-                        src={student.profilePhotoUrl}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
+                  <span
+                    className="hall-rank"
+                    aria-label={`Rank ${student.rank}`}
+                  >
+                    {student.rank === 1 ? (
+                      <Crown size={18} />
+                    ) : student.rank === 2 || student.rank === 3 ? (
+                      <Medal size={18} />
                     ) : (
-                      initials(student.name)
+                      `#${student.rank}`
                     )}
                   </span>
-                </span>
-                <span className="hall-student-info">
-                  <b>{student.name}</b>
-                  <small>
-                    {student.semester
-                      ? `Semester ${student.semester}`
-                      : "Student"}
-                    {student.classSection
-                      ? ` · Class ${student.classSection}`
-                      : ""}
-                  </small>
-                </span>
-                <span className="hall-points">
-                  <b>{student.totalPoints.toLocaleString()}</b>
-                  <small>points</small>
-                </span>
-              </li>
-            ))}
+                  <span className="hall-avatar-frame">
+                    {student.rank >= 1 && student.rank <= 3 && (
+                      <span className="hall-avatar-sparks" aria-hidden="true">
+                        <span className="hall-avatar-spark hall-avatar-spark-1" />
+                        <span className="hall-avatar-spark hall-avatar-spark-2" />
+                        <span className="hall-avatar-spark hall-avatar-spark-3" />
+                      </span>
+                    )}
+                    <span className="hall-avatar" aria-hidden="true">
+                      {student.profilePhotoUrl ? (
+                        <img
+                          src={student.profilePhotoUrl}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        initials(student.name)
+                      )}
+                    </span>
+                  </span>
+                  <span className="hall-student-info">
+                    <b>{student.name}</b>
+                    <small>
+                      {student.semester
+                        ? `Semester ${student.semester}`
+                        : "Student"}
+                      {student.classSection
+                        ? ` · Class ${student.classSection}`
+                        : ""}
+                    </small>
+                    {earnedBadges.length > 0 && (
+                      <span
+                        className="hall-student-badges"
+                        aria-label={`Earned badges: ${earnedBadges.map((badge) => badge.name).join(", ")}`}
+                      >
+                        {earnedBadges.map((badge) => (
+                          <PointBadge
+                            key={badge.id}
+                            badge={badge}
+                            earned
+                            compact
+                          />
+                        ))}
+                      </span>
+                    )}
+                  </span>
+                  <span className="hall-points">
+                    <b>{student.totalPoints.toLocaleString()}</b>
+                    <small>points</small>
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         )}
         <div className="hall-footnote">
