@@ -1,18 +1,18 @@
 const ModuleManualProgress = require("../models/ModuleManualProgress");
 const User = require("../models/User");
 const Module = require("../models/Module");
-
-const RESEND_EMAILS_URL = "https://api.resend.com/emails";
+const {
+  buildStableMessageId,
+  isEmailConfigured,
+  getEmailFromAddress,
+  sendEmail,
+} = require("./gmailApiMailer");
 const MAX_ATTEMPTS = 5;
 const RETRY_DELAYS_MS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000];
 const STALE_SENDING_MS = 5 * 60_000;
 const QUEUE_BATCH_SIZE = 20;
 let workerTimer = null;
 let workerRunning = false;
-
-function isResendConfigured() {
-  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
-}
 
 function escapeHtml(value) {
   return String(value || "").replace(
@@ -78,41 +78,22 @@ function buildModuleCompletionEmail({ student, module, progress }) {
   ].join("\n");
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f3f6fa;font-family:Arial,sans-serif;color:#1c2634"><div style="max-width:600px;margin:0 auto;padding:28px;background:#fff;border:1px solid #e4eaf0;border-radius:16px"><p style="margin:0 0 12px;color:#08796f;font-size:12px;font-weight:700;letter-spacing:.12em">GMIU · DBMS LEARNING PORTAL</p><h1 style="margin:0 0 12px;font-size:24px">Module completed!</h1><p style="line-height:1.6">Hello ${safeName},</p><p style="line-height:1.6">Congratulations! All <b>${totalCount} of ${totalCount}</b> official practicals for <b>${safeModuleLabel}</b> have been reviewed and approved.</p><p style="margin:24px 0"><a href="${safeModuleUrl}" style="display:inline-block;padding:12px 18px;border-radius:9px;background:#15304a;color:#fff;text-decoration:none;font-weight:700">Continue learning</a></p><p style="color:#657487;font-size:13px;line-height:1.6">Keep up the great work!</p></div></body></html>`;
   return {
-    from: process.env.RESEND_FROM_EMAIL,
+    from: getEmailFromAddress(),
     to: [student.email],
+    messageId: buildStableMessageId(
+      "module-completion",
+      `${student._id}:${module._id}`,
+    ),
     subject,
     text,
     html,
   };
 }
 
-async function sendModuleCompletionEmail({
-  student,
-  module,
-  progress,
-  studentId,
-  moduleId,
-}) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey || !process.env.RESEND_FROM_EMAIL)
-    throw new Error("resend_not_configured");
+async function sendModuleCompletionEmail({ student, module, progress }) {
+  if (!isEmailConfigured()) throw new Error("gmail_api_not_configured");
   const email = buildModuleCompletionEmail({ student, module, progress });
-  const idempotencyKey = `module-completion/${String(studentId || student._id)}/${String(moduleId || module._id)}`;
-  const response = await fetch(RESEND_EMAILS_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKey,
-    },
-    body: JSON.stringify(email),
-  });
-  if (!response.ok) {
-    const error = new Error(`resend_http_${response.status}`);
-    error.status = response.status;
-    throw error;
-  }
-  return response.json().catch(() => ({}));
+  return sendEmail(email);
 }
 
 function nextRetryAt(attempts, now = new Date()) {
@@ -142,13 +123,15 @@ async function markPermanentFailure(progressId, errorCode) {
 }
 
 async function processModuleCompletionEmail(progressId) {
-  if (!isResendConfigured()) return "unconfigured";
+  if (!isEmailConfigured()) return "unconfigured";
+  // Only newly queued notifications carry this marker; pre-existing rows are intentionally not backfilled.
   const now = new Date();
   const staleCutoff = new Date(now.getTime() - STALE_SENDING_MS);
   const claimed = await ModuleManualProgress.findOneAndUpdate(
     {
       _id: String(progressId),
       moduleManualStatus: "completed",
+      completionEmailQueuedAt: { $exists: true, $ne: null },
       $or: [
         { completionEmailStatus: "pending" },
         {
@@ -207,13 +190,7 @@ async function processModuleCompletionEmail(progressId) {
         "student_or_module_unavailable",
       );
     }
-    await sendModuleCompletionEmail({
-      student,
-      module,
-      progress: claimed,
-      studentId: claimed.studentId,
-      moduleId: claimed.moduleId,
-    });
+    await sendModuleCompletionEmail({ student, module, progress: claimed });
     await ModuleManualProgress.updateOne(
       { _id: claimed._id, completionEmailStatus: "sending" },
       {
@@ -250,13 +227,14 @@ async function processModuleCompletionEmail(progressId) {
 }
 
 async function processDueModuleCompletionEmails() {
-  if (workerRunning || !isResendConfigured()) return 0;
+  if (workerRunning || !isEmailConfigured()) return 0;
   workerRunning = true;
   try {
     const now = new Date();
     const staleCutoff = new Date(now.getTime() - STALE_SENDING_MS);
     const dueRows = await ModuleManualProgress.find({
       moduleManualStatus: "completed",
+      completionEmailQueuedAt: { $exists: true, $ne: null },
       $or: [
         { completionEmailStatus: "pending" },
         {

@@ -46,6 +46,7 @@ test("module manual progress model persists pending/completed status per student
     ModuleManualProgress.schema.path("completionEmailStatus").enumValues,
     ["pending", "sending", "sent", "failed"],
   );
+  assert.ok(ModuleManualProgress.schema.path("completionEmailQueuedAt"));
   assert.ok(
     ModuleManualProgress.schema
       .indexes()
@@ -164,6 +165,15 @@ test("module manual reconciliation persists per-student status for each module",
     assert.equal(
       bulkOperations[3].updateOne.update.$set.completionEmailStatus,
       "pending",
+    );
+    assert.ok(
+      bulkOperations[3].updateOne.update.$set.completionEmailQueuedAt instanceof
+        Date,
+    );
+    assert.equal(
+      bulkOperations[0].updateOne.update.$set.completionEmailQueuedAt,
+      undefined,
+      "old completions are not queued retroactively",
     );
     assert.equal(bulkOperations.length, 4);
     assert.ok(bulkOperations.every((operation) => operation.updateOne.upsert));

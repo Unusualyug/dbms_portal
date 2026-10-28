@@ -148,6 +148,7 @@ async function syncModuleManualProgressForStudents(
       };
       if (completionEmailQueued) {
         setFields.completionEmailStatus = "pending";
+        setFields.completionEmailQueuedAt = calculatedAt;
         setFields.completionEmailAttempts = 0;
         setFields.completionEmailLastAttemptAt = null;
         setFields.completionEmailNextAttemptAt = null;

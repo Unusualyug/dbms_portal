@@ -18,9 +18,9 @@ import Notice from "../components/Notice.jsx";
 
 function emailStatusText(status) {
   if (status === "sent")
-    return "Resend accepted the email for the student’s saved address. Inbox delivery is not independently verified.";
+    return "Google accepted the email for the student's saved address. Inbox delivery is not independently verified.";
   if (status === "failed")
-    return "Email attempt failed. The portal reply is saved; check Resend status/configuration and retry.";
+    return "Email attempt failed. The portal reply is saved; check Gmail API settings and backend logs, then retry.";
   if (status === "sending")
     return "The portal reply is saved; email delivery is in progress.";
   if (status === "pending")
@@ -109,7 +109,7 @@ export default function AdminSupportPage() {
     try {
       await api.post(`/admin/support/${request.id}/retry-email`, {});
       setNotice(
-        "Email retry queued. The request will remain here until Resend accepts the email for sending.",
+        "Email retry queued. The request will remain here until Google accepts the email for sending.",
       );
       setRefreshKey((value) => value + 1);
     } catch (requestError) {
@@ -122,7 +122,7 @@ export default function AdminSupportPage() {
   const readAndDelete = async (request) => {
     if (!canDelete(request)) return;
     const confirmed = window.confirm(
-      "Read and permanently delete this request and its saved reply? The student portal thread will disappear. Any email already accepted by Resend is outside the portal and cannot be recalled; inbox delivery is not independently verified.",
+      "Read and permanently delete this request and its saved reply? The student portal thread will disappear. Any email already accepted by Google is outside the portal and cannot be recalled; inbox delivery is not independently verified.",
     );
     if (!confirmed) return;
     setBusyId(request.id);
@@ -163,11 +163,11 @@ export default function AdminSupportPage() {
         }
       />
       <Notice type="info">
-        Admin replies appear in the student’s portal and trigger a Resend email
-        attempt to their saved address. “Read &amp; delete” permanently removes
-        the request and reply. A replied request stays here until Resend accepts
-        the email for sending; this does not verify arrival in the student’s
-        inbox.
+        Admin replies appear in the student’s portal and trigger an email
+        attempt to their saved address through Google. “Read &amp; delete”
+        permanently removes the request and reply. A replied request stays here
+        until Google accepts the email for sending; this does not verify arrival
+        in the student’s inbox.
       </Notice>
       {error && <Notice type="error">{error}</Notice>}
       {notice && <Notice type="success">{notice}</Notice>}
@@ -299,7 +299,7 @@ export default function AdminSupportPage() {
                 />
                 <div className="admin-support-actions">
                   <small>
-                    Reply appears in the portal; Resend will attempt the email
+                    Reply appears in the portal; Google will attempt the email
                     to the saved account address.
                   </small>
                   <button
@@ -353,7 +353,7 @@ export default function AdminSupportPage() {
               {!canDelete(request) && (
                 <span className="admin-support-delete-hold">
                   <Clock3 size={13} />
-                  Keep this request until Resend accepts the email for sending.
+                  Keep this request until Google accepts the email for sending.
                 </span>
               )}
               <button
@@ -363,7 +363,7 @@ export default function AdminSupportPage() {
                 disabled={!canDelete(request) || busyId === request.id}
                 title={
                   !canDelete(request)
-                    ? "Resend must accept the reply email before deleting."
+                    ? "Google must accept the reply email before deleting."
                     : "Permanently delete request and reply"
                 }
               >

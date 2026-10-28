@@ -15,7 +15,7 @@ import Notice from "./Notice.jsx";
 
 function emailStatusCopy(status) {
   if (status === "sent")
-    return "Resend accepted an email for your saved account address. Inbox delivery is not independently verified.";
+    return "The SMTP server accepted an email for your saved account address. Inbox delivery is not independently verified.";
   if (status === "failed")
     return "The reply is available here, but email delivery has not been confirmed.";
   if (status === "sending")

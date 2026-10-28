@@ -9,7 +9,7 @@ export default function StudentSupportPage() {
       <SectionHeading
         eyebrow="STUDENT SUPPORT DESK"
         title="Contact & Support"
-        description="Send a question or suggestion to the portal admin. Replies appear in your support thread; Resend’s email status is shown separately."
+        description="Send a question or suggestion to the portal admin. Replies appear in your support thread; email status is shown separately."
         action={
           <span className="soft-badge">
             <LifeBuoy size={15} /> Questions &amp; suggestions

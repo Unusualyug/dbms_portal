@@ -192,7 +192,7 @@ async function deleteSupportMessage(req, res) {
     if (!exists) throw new HttpError(404, "Support request not found.");
     throw new HttpError(
       409,
-      "Resend has not accepted the reply email yet. Keep this request and retry or wait before deleting it.",
+      "The mail server has not accepted the reply email yet. Keep this request and retry or wait before deleting it.",
     );
   }
   res.json({ deleted: true, id: req.params.id });

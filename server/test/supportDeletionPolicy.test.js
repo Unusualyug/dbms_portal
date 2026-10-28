@@ -12,7 +12,7 @@ test("the atomic read/delete filter allows unanswered requests", () => {
   });
 });
 
-test("the atomic read/delete filter requires a Resend-accepted email for replied requests", () => {
+test("the atomic read/delete filter requires the SMTP server to accept a reply email before deleting replied requests", () => {
   const filter = buildSupportMessageDeleteFilter("support-id");
   assert.equal(
     filter.$or.some(

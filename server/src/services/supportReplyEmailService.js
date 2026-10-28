@@ -1,17 +1,17 @@
 const SupportMessage = require("../models/SupportMessage");
 const User = require("../models/User");
-
-const RESEND_EMAILS_URL = "https://api.resend.com/emails";
+const {
+  buildStableMessageId,
+  isEmailConfigured,
+  getEmailFromAddress,
+  sendEmail,
+} = require("./gmailApiMailer");
 const MAX_ATTEMPTS = 5;
 const RETRY_DELAYS_MS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000];
 const STALE_SENDING_MS = 5 * 60_000;
 const QUEUE_BATCH_SIZE = 20;
 let workerTimer = null;
 let workerRunning = false;
-
-function isResendConfigured() {
-  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
-}
 
 function escapeHtml(value) {
   return String(value || "").replace(
@@ -47,8 +47,12 @@ function buildSupportReplyEmail({ student, supportMessage }) {
   ].join("\n");
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f3f6fa;font-family:Arial,sans-serif;color:#1c2634"><div style="max-width:600px;margin:0 auto;padding:28px;background:#fff;border:1px solid #e4eaf0;border-radius:16px"><p style="margin:0 0 12px;color:#08796f;font-size:12px;font-weight:700;letter-spacing:.12em">GMIU · DBMS LEARNING PORTAL</p><h1 style="margin:0 0 12px;font-size:22px">A reply to your support request</h1><p style="line-height:1.6">Hello ${escapeHtml(displayName)},</p><p style="line-height:1.6">Our admin replied to your <b>${escapeHtml(supportMessage.category || "support")}</b> request, <b>${escapeHtml(supportMessage.subject)}</b>:</p><div style="margin:20px 0;padding:16px;background:#f5f8fb;border-left:3px solid #08796f;border-radius:8px;line-height:1.65;white-space:pre-wrap">${escapeHtml(supportMessage.reply)}</div><p style="color:#657487;font-size:13px;line-height:1.6">You can also view this reply in the Contact &amp; Support section of your portal.</p></div></body></html>`;
   return {
-    from: process.env.RESEND_FROM_EMAIL,
+    from: getEmailFromAddress(),
     to: [student.email],
+    messageId: buildStableMessageId(
+      "support-reply",
+      String(supportMessage._id),
+    ),
     subject,
     text,
     html,
@@ -56,25 +60,9 @@ function buildSupportReplyEmail({ student, supportMessage }) {
 }
 
 async function sendSupportReplyEmail({ student, supportMessage }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey || !process.env.RESEND_FROM_EMAIL)
-    throw new Error("resend_not_configured");
+  if (!isEmailConfigured()) throw new Error("gmail_api_not_configured");
   const email = buildSupportReplyEmail({ student, supportMessage });
-  const response = await fetch(RESEND_EMAILS_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": `support-reply/${String(supportMessage._id)}`,
-    },
-    body: JSON.stringify(email),
-  });
-  if (!response.ok) {
-    const error = new Error(`resend_http_${response.status}`);
-    error.status = response.status;
-    throw error;
-  }
-  return response.json().catch(() => ({}));
+  return sendEmail(email);
 }
 
 function nextRetryAt(attempts, now = new Date()) {
@@ -104,7 +92,7 @@ async function markPermanentFailure(messageId, errorCode) {
 }
 
 async function processSupportReplyEmail(messageId) {
-  if (!isResendConfigured()) return "unconfigured";
+  if (!isEmailConfigured()) return "unconfigured";
   const now = new Date();
   const staleCutoff = new Date(now.getTime() - STALE_SENDING_MS);
   const claimed = await SupportMessage.findOneAndUpdate(
@@ -191,7 +179,7 @@ async function processSupportReplyEmail(messageId) {
 }
 
 async function processDueSupportReplyEmails() {
-  if (workerRunning || !isResendConfigured()) return 0;
+  if (workerRunning || !isEmailConfigured()) return 0;
   workerRunning = true;
   try {
     const now = new Date();

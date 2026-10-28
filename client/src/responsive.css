@@ -1334,13 +1334,13 @@ canvas {
   font-weight: 650;
 }
 .practice-code-editor .tok-string {
-  color: #25876b;
+  color: #1e765c;
 }
 .practice-code-editor .tok-number {
   color: #326fc0;
 }
 .practice-code-editor .tok-comment {
-  color: #8794a2;
+  color: #596a7e;
   font-style: italic;
 }
 .practice-code-editor .tok-operator {
@@ -3822,7 +3822,7 @@ canvas {
   line-height: 1.55;
 }
 
-/* Admin support inbox: retain replied tickets until Resend accepts the email for sending. */
+/* Admin support inbox: retain replied tickets until the email service accepts the email for sending. */
 .admin-support-toolbar {
   margin-top: 18px;
 }
