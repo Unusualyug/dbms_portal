@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const moduleManualProgressSchema = new mongoose.Schema(
   {
     _id: { type: String, required: true },
+    courseCode: { type: String, required: true, trim: true, index: true },
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -45,8 +46,8 @@ const moduleManualProgressSchema = new mongoose.Schema(
 );
 
 moduleManualProgressSchema.index(
-  { studentId: 1, moduleId: 1 },
-  { unique: true },
+  { studentId: 1, courseCode: 1, moduleId: 1 },
+  { unique: true, name: "unique_manual_progress_per_student_course_module" },
 );
 moduleManualProgressSchema.index({ moduleId: 1, moduleManualStatus: 1 });
 moduleManualProgressSchema.index({

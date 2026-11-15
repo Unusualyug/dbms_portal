@@ -1,19 +1,37 @@
-const { hasPointsAward } = require('./pointsService');
-const HttpError = require('../utils/httpError');
+const { hasPointsAward } = require("./pointsService");
+const { courseFilter } = require("./courseScope");
+const HttpError = require("../utils/httpError");
 
-async function ensureSubmissionAvailable({ AttemptModel, studentId, itemFilter, awardKey, itemLabel }) {
-  const filter = { studentId, ...itemFilter };
+async function ensureSubmissionAvailable({
+  AttemptModel,
+  studentId,
+  itemFilter,
+  awardKey,
+  itemLabel,
+  courseCode,
+}) {
+  const criteria = { studentId, ...itemFilter };
+  const filter = courseCode ? courseFilter(courseCode, criteria) : criteria;
   const [completedAttempt, alreadyAwarded] = await Promise.all([
     AttemptModel.exists({ ...filter, completedAt: { $ne: null } }),
-    hasPointsAward({ studentId, awardKey }),
+    hasPointsAward({ studentId, awardKey, courseCode }),
   ]);
   if (completedAttempt || alreadyAwarded) {
-    throw new HttpError(409, `You already earned points for this ${itemLabel}. It is now locked.`);
+    throw new HttpError(
+      409,
+      `You already earned points for this ${itemLabel}. It is now locked.`,
+    );
   }
 
-  const pendingAttempt = await AttemptModel.exists({ ...filter, reviewStatus: 'pending' });
+  const pendingAttempt = await AttemptModel.exists({
+    ...filter,
+    reviewStatus: "pending",
+  });
   if (pendingAttempt) {
-    throw new HttpError(409, `A submission for this ${itemLabel} is already awaiting review. Wait for a decision before submitting again.`);
+    throw new HttpError(
+      409,
+      `A submission for this ${itemLabel} is already awaiting review. Wait for a decision before submitting again.`,
+    );
   }
 }
 

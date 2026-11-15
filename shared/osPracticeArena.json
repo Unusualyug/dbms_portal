@@ -1,0 +1,162 @@
+[
+  {
+    "id": "os-round-1",
+    "title": "UNIX Explorer",
+    "emoji": "⌨️",
+    "focus": "Shell fundamentals",
+    "sections": [
+      {
+        "id": "os-round-1-section-1",
+        "title": "Command-line craft",
+        "tasks": [
+          {
+            "id": "os-r1-t01",
+            "title": "Workspace Inspector",
+            "language": "bash",
+            "prompt": "Write a portable shell script that reports the current user, shell, date, and working directory. Include clear labels, handle an unset SHELL variable, and explain which commands supply each value."
+          },
+          {
+            "id": "os-r1-t02",
+            "title": "File Permission Checker",
+            "language": "bash",
+            "prompt": "Create an interactive Bash script that reads a path and reports whether it exists, is a regular file or directory, and is readable, writable, and executable. Quote variable expansions and handle a missing path."
+          },
+          {
+            "id": "os-r1-t03",
+            "title": "Pipeline Reporter",
+            "language": "bash",
+            "prompt": "Build a shell pipeline that reads a text file, selects a chosen field, filters matching rows, sorts them, and reports unique values with counts. Include a small sample input and expected output."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "os-round-2",
+    "title": "Process Desk",
+    "emoji": "⚙️",
+    "focus": "Processes, threads, and scheduling",
+    "sections": [
+      {
+        "id": "os-round-2-section-1",
+        "title": "Scheduling workbench",
+        "tasks": [
+          {
+            "id": "os-r2-t01",
+            "title": "Scheduling Comparison",
+            "language": "python",
+            "prompt": "Implement FCFS and non-preemptive SJF for a small list of processes with arrival and burst times. Show execution order, completion time, waiting time, turnaround time, and average values; state how ties are handled."
+          },
+          {
+            "id": "os-r2-t02",
+            "title": "Round Robin Trace",
+            "language": "python",
+            "prompt": "Implement Round Robin scheduling with a configurable time quantum. Print each dispatch interval and each process's completion, waiting, and turnaround time. Demonstrate one worked example."
+          },
+          {
+            "id": "os-r2-t03",
+            "title": "Process-System-Call Map",
+            "language": "text",
+            "prompt": "Explain the parent/child relationship for fork(), how exec() changes the child process image, why wait() is used, and how exit() completes a process. Include a short C-like pseudocode sequence and expected process-tree diagram description."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "os-round-3",
+    "title": "Memory Lab",
+    "emoji": "🧠",
+    "focus": "Allocation and virtual memory",
+    "sections": [
+      {
+        "id": "os-round-3-section-1",
+        "title": "Memory experiments",
+        "tasks": [
+          {
+            "id": "os-r3-t01",
+            "title": "Partition Allocator",
+            "language": "python",
+            "prompt": "Simulate First Fit, Best Fit, and Worst Fit for a list of free memory blocks and process requests. Show each allocation, remaining block sizes, and any request that cannot fit."
+          },
+          {
+            "id": "os-r3-t02",
+            "title": "Page-Fault Comparator",
+            "language": "python",
+            "prompt": "Implement FIFO, LRU, and Optimal page replacement for a reference string and frame count. Print the frame contents after each reference, mark hits and faults, and compare total page faults."
+          },
+          {
+            "id": "os-r3-t03",
+            "title": "Memory Concept Brief",
+            "language": "text",
+            "prompt": "Write a concise comparison of paging, segmentation, and virtual memory. Explain logical versus physical addresses, page/frame mapping, demand paging, and why excessive page faults can lead to thrashing."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "os-round-4",
+    "title": "Concurrency Lab",
+    "emoji": "🔁",
+    "focus": "Synchronization, IPC, and deadlocks",
+    "sections": [
+      {
+        "id": "os-round-4-section-1",
+        "title": "Coordination puzzles",
+        "tasks": [
+          {
+            "id": "os-r4-t01",
+            "title": "Safe-State Checker",
+            "language": "python",
+            "prompt": "Implement a Banker's-algorithm safety check using Allocation, Maximum, and Available matrices. Print Need, the safe sequence if one exists, and explain why an unsafe state is not necessarily already deadlocked."
+          },
+          {
+            "id": "os-r4-t02",
+            "title": "Bounded Buffer Plan",
+            "language": "text",
+            "prompt": "Design a producer-consumer solution for a bounded buffer using semaphores or clear pseudocode. Identify the mutex, empty-slot, and full-slot conditions and explain how the solution prevents overflow, underflow, and race conditions."
+          },
+          {
+            "id": "os-r4-t03",
+            "title": "Deadlock Case Analysis",
+            "language": "text",
+            "prompt": "Construct a small resource-allocation example and identify whether mutual exclusion, hold-and-wait, no-preemption, and circular-wait all hold. Suggest one prevention strategy and describe its trade-off."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "os-round-5",
+    "title": "Storage & Security",
+    "emoji": "🛡️",
+    "focus": "Disk, files, and access control",
+    "sections": [
+      {
+        "id": "os-round-5-section-1",
+        "title": "System care",
+        "tasks": [
+          {
+            "id": "os-r5-t01",
+            "title": "Disk Scheduler",
+            "language": "python",
+            "prompt": "Implement FCFS, SSTF, SCAN, and C-SCAN disk scheduling for a request queue, initial head position, and cylinder range. Show service order and total head movement; state the direction and endpoint assumptions."
+          },
+          {
+            "id": "os-r5-t02",
+            "title": "Least-Privilege Audit",
+            "language": "bash",
+            "prompt": "Write a safe Bash audit script that lists file type, owner, mode, and size for files in a chosen test directory, then checks whether a named file is readable, writable, or executable. Do not change permissions outside the test directory."
+          },
+          {
+            "id": "os-r5-t03",
+            "title": "Archive-and-Verify",
+            "language": "bash",
+            "prompt": "Write a shell script that accepts a directory argument, creates a timestamped tar.gz archive, verifies that the archive can be listed, and reports errors without deleting source files."
+          }
+        ]
+      }
+    ]
+  }
+]

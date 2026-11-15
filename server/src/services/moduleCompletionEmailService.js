@@ -1,12 +1,16 @@
 const ModuleManualProgress = require("../models/ModuleManualProgress");
 const User = require("../models/User");
 const Module = require("../models/Module");
+const Practical = require("../models/Practical");
+const PracticalAttempt = require("../models/PracticalAttempt");
+const { COURSE_CODE, getCourse } = require("../config/constants");
+const { courseFilter } = require("./courseScope");
 const {
   buildStableMessageId,
   isEmailConfigured,
   getEmailFromAddress,
   sendEmail,
-} = require("./gmailApiMailer");
+} = require("./smtpMailer");
 const MAX_ATTEMPTS = 5;
 const RETRY_DELAYS_MS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000];
 const STALE_SENDING_MS = 5 * 60_000;
@@ -44,7 +48,12 @@ function getPortalModuleUrl(slug) {
   ).toString();
 }
 
-function buildModuleCompletionEmail({ student, module, progress }) {
+function buildModuleCompletionEmail({
+  student,
+  module,
+  progress,
+  courseCode = progress?.courseCode || COURSE_CODE,
+}) {
   if (
     !student?.email ||
     !module?.moduleNumber ||
@@ -53,6 +62,8 @@ function buildModuleCompletionEmail({ student, module, progress }) {
   ) {
     throw new Error("module_completion_email_data_missing");
   }
+  const course = getCourse(courseCode) || getCourse(COURSE_CODE);
+  const portalLabel = course?.portalLabel || "DBMS";
   const moduleLabel = `Module ${module.moduleNumber} · ${module.title}`;
   const completedCount = Math.min(
     Number(progress?.completedPracticals) || 0,
@@ -74,9 +85,9 @@ function buildModuleCompletionEmail({ student, module, progress }) {
     "",
     `Continue learning: ${moduleUrl}`,
     "",
-    "GMIU DBMS Learning Portal",
+    `GMIU ${portalLabel} Learning Portal`,
   ].join("\n");
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f3f6fa;font-family:Arial,sans-serif;color:#1c2634"><div style="max-width:600px;margin:0 auto;padding:28px;background:#fff;border:1px solid #e4eaf0;border-radius:16px"><p style="margin:0 0 12px;color:#08796f;font-size:12px;font-weight:700;letter-spacing:.12em">GMIU · DBMS LEARNING PORTAL</p><h1 style="margin:0 0 12px;font-size:24px">Module completed!</h1><p style="line-height:1.6">Hello ${safeName},</p><p style="line-height:1.6">Congratulations! All <b>${totalCount} of ${totalCount}</b> official practicals for <b>${safeModuleLabel}</b> have been reviewed and approved.</p><p style="margin:24px 0"><a href="${safeModuleUrl}" style="display:inline-block;padding:12px 18px;border-radius:9px;background:#15304a;color:#fff;text-decoration:none;font-weight:700">Continue learning</a></p><p style="color:#657487;font-size:13px;line-height:1.6">Keep up the great work!</p></div></body></html>`;
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f3f6fa;font-family:Arial,sans-serif;color:#1c2634"><div style="max-width:600px;margin:0 auto;padding:28px;background:#fff;border:1px solid #e4eaf0;border-radius:16px"><p style="margin:0 0 12px;color:#08796f;font-size:12px;font-weight:700;letter-spacing:.12em">GMIU · ${escapeHtml(portalLabel).toUpperCase()} LEARNING PORTAL</p><h1 style="margin:0 0 12px;font-size:24px">Module completed!</h1><p style="line-height:1.6">Hello ${safeName},</p><p style="line-height:1.6">Congratulations! All <b>${totalCount} of ${totalCount}</b> official practicals for <b>${safeModuleLabel}</b> have been reviewed and approved.</p><p style="margin:24px 0"><a href="${safeModuleUrl}" style="display:inline-block;padding:12px 18px;border-radius:9px;background:#15304a;color:#fff;text-decoration:none;font-weight:700">Continue learning</a></p><p style="color:#657487;font-size:13px;line-height:1.6">Keep up the great work!</p></div></body></html>`;
   return {
     from: getEmailFromAddress(),
     to: [student.email],
@@ -90,9 +101,19 @@ function buildModuleCompletionEmail({ student, module, progress }) {
   };
 }
 
-async function sendModuleCompletionEmail({ student, module, progress }) {
-  if (!isEmailConfigured()) throw new Error("gmail_api_not_configured");
-  const email = buildModuleCompletionEmail({ student, module, progress });
+async function sendModuleCompletionEmail({
+  student,
+  module,
+  progress,
+  courseCode = progress?.courseCode || COURSE_CODE,
+}) {
+  if (!isEmailConfigured()) throw new Error("smtp_not_configured");
+  const email = buildModuleCompletionEmail({
+    student,
+    module,
+    progress,
+    courseCode,
+  });
   return sendEmail(email);
 }
 
@@ -120,6 +141,52 @@ async function markPermanentFailure(progressId, errorCode) {
     },
   );
   return "failed";
+}
+
+async function moduleHasAllOfficialPracticalsApproved({
+  studentId,
+  moduleId,
+  courseCode = COURSE_CODE,
+  expectedCount,
+}) {
+  const course = getCourse(courseCode) || getCourse(COURSE_CODE);
+  const normalizedCourseCode = course.code;
+  const practicals = await Practical.find(
+    courseFilter(normalizedCourseCode, { moduleId, isActive: true }),
+  )
+    .select("_id")
+    .lean();
+  if (
+    !practicals.length ||
+    (expectedCount != null && Number(expectedCount) !== practicals.length)
+  )
+    return false;
+  const practicalIds = practicals.map((practical) => practical._id);
+  const approvedIds = await PracticalAttempt.distinct(
+    "practicalId",
+    courseFilter(normalizedCourseCode, {
+      studentId,
+      practicalId: { $in: practicalIds },
+      reviewStatus: "approved",
+    }),
+  );
+  return new Set(approvedIds.map(String)).size === practicalIds.length;
+}
+
+async function deferUntilAllPracticalsAreApproved(progressId, attempts) {
+  await ModuleManualProgress.updateOne(
+    { _id: progressId, completionEmailStatus: "sending" },
+    {
+      $set: {
+        completionEmailStatus: "pending",
+        completionEmailAttempts: Math.max(0, attempts - 1),
+        completionEmailLastAttemptAt: null,
+        completionEmailNextAttemptAt: null,
+        completionEmailLastError: "awaiting_admin_approval",
+      },
+    },
+  );
+  return "awaiting-approval";
 }
 
 async function processModuleCompletionEmail(progressId) {
@@ -170,11 +237,22 @@ async function processModuleCompletionEmail(progressId) {
         "module_practicals_not_all_approved",
       );
     }
+    const course =
+      getCourse(claimed.courseCode || COURSE_CODE) || getCourse(COURSE_CODE);
+    const courseCode = course.code;
+    const allPracticalsApproved = await moduleHasAllOfficialPracticalsApproved({
+      studentId: claimed.studentId,
+      moduleId: claimed.moduleId,
+      courseCode,
+      expectedCount: claimed.totalPracticals,
+    });
+    if (!allPracticalsApproved)
+      return await deferUntilAllPracticalsAreApproved(claimed._id, attempts);
     const [student, module] = await Promise.all([
       User.findById(claimed.studentId)
         .select("name email role isActive")
         .lean(),
-      Module.findById(claimed.moduleId)
+      Module.findOne(courseFilter(courseCode, { _id: claimed.moduleId }))
         .select("moduleNumber title slug")
         .lean(),
     ]);
@@ -190,7 +268,12 @@ async function processModuleCompletionEmail(progressId) {
         "student_or_module_unavailable",
       );
     }
-    await sendModuleCompletionEmail({ student, module, progress: claimed });
+    await sendModuleCompletionEmail({
+      student,
+      module,
+      progress: claimed,
+      courseCode,
+    });
     await ModuleManualProgress.updateOne(
       { _id: claimed._id, completionEmailStatus: "sending" },
       {
@@ -293,6 +376,7 @@ function startModuleCompletionEmailWorker() {
 module.exports = {
   buildModuleCompletionEmail,
   sendModuleCompletionEmail,
+  moduleHasAllOfficialPracticalsApproved,
   processModuleCompletionEmail,
   processDueModuleCompletionEmails,
   triggerModuleCompletionEmail,

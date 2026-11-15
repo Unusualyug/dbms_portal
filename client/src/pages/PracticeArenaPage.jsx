@@ -16,12 +16,11 @@ import {
 } from "lucide-react";
 import { api } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useCourse } from "../context/CourseContext.jsx";
+import { OS_COURSE_CODE } from "../services/courseSelection.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Notice from "../components/Notice.jsx";
-import {
-  practiceArenaCounts,
-  practiceArenaRounds,
-} from "../data/practiceArena.js";
+import { getPracticeArena } from "../data/practiceArena.js";
 
 const emptyWorkspace = { drafts: {} };
 
@@ -43,8 +42,12 @@ function countChallenges(round) {
 
 export default function PracticeArenaPage() {
   const { user } = useAuth();
+  const { courseCode, currentCourse } = useCourse();
+  const { rounds: practiceArenaRounds, counts: practiceArenaCounts } =
+    getPracticeArena(courseCode);
+  const isOperatingSystems = courseCode === OS_COURSE_CODE;
   const studentKey = user?.id || user?.studentId || "student";
-  const storageKey = `gmiu-dbms-practice-arena-v1:${studentKey}`;
+  const storageKey = `gmiu-course-practice-arena-v1:${courseCode}:${studentKey}`;
   const [workspace, setWorkspace] = useState(() => readWorkspace(storageKey));
   const [arenaProgress, setArenaProgress] = useState({});
   const [progressError, setProgressError] = useState("");
@@ -92,6 +95,9 @@ export default function PracticeArenaPage() {
 
   useEffect(() => {
     let mounted = true;
+    setArenaProgress({});
+    setProgressError("");
+    setProgressLoading(true);
     api
       .get("/student/practice-arena")
       .then((data) => {
@@ -106,11 +112,15 @@ export default function PracticeArenaPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [courseCode]);
 
   useEffect(() => {
     const handleReview = (event) => {
-      if (event.detail?.type !== "arena") return;
+      if (
+        event.detail?.type !== "arena" ||
+        (event.detail.courseCode && event.detail.courseCode !== courseCode)
+      )
+        return;
       api
         .get("/student/practice-arena")
         .then((data) => setArenaProgress(data.progress || {}))
@@ -119,7 +129,7 @@ export default function PracticeArenaPage() {
     window.addEventListener("portal:submission-reviewed", handleReview);
     return () =>
       window.removeEventListener("portal:submission-reviewed", handleReview);
-  }, []);
+  }, [courseCode]);
 
   const activeRound =
     practiceArenaRounds.find((round) => round.id === roundId) ||
@@ -148,8 +158,20 @@ export default function PracticeArenaPage() {
     selectedSection?.tasks.find((task) => task.id === selectedTaskId) ||
     visibleTasks[0] ||
     null;
+  const taskLanguage = selectedTask?.language || "sql";
+  const taskLanguageLabel =
+    taskLanguage === "text" ? "Written response" : taskLanguage.toUpperCase();
   const solution = selectedTask ? workspace.drafts[selectedTask.id] || "" : "";
   const selectedProgress = selectedTask ? arenaProgress[selectedTask.id] : null;
+  const editorPlaceholder = selectedProgress?.completed
+    ? "This challenge is locked after points were awarded."
+    : taskLanguage === "bash"
+      ? "# Write your shell solution here; it will be saved for review."
+      : taskLanguage === "python"
+        ? "# Write your Python solution here; it will be saved for review."
+        : taskLanguage === "text"
+          ? "Write your explanation or pseudocode here for instructor review."
+          : "-- Write your SQL or PL/SQL solution here. Your draft saves automatically.";
   const latestAttempt = selectedProgress?.latest || null;
   const completedCount = Object.values(arenaProgress).filter(
     (item) => item.completed,
@@ -230,7 +252,9 @@ export default function PracticeArenaPage() {
       return;
     }
     if (!selectedTask || !solution.trim()) {
-      setRunError("Write a SQL or PL/SQL solution before submitting it.");
+      setRunError(
+        "Write a solution before submitting it for instructor review.",
+      );
       return;
     }
     setRunning(true);
@@ -295,9 +319,17 @@ export default function PracticeArenaPage() {
   return (
     <div className="practice-arena-page">
       <SectionHeading
-        eyebrow="EXTRA SQL & PL/SQL PRACTICE"
+        eyebrow={
+          isOperatingSystems
+            ? "EXTRA OPERATING SYSTEMS PRACTICE"
+            : "EXTRA SQL & PL/SQL PRACTICE"
+        }
         title="🧠 Practice Arena"
-        description="Independent SQL/PLSQL challenges organized into rounds. Submit your code for instructor review; the portal does not execute it."
+        description={
+          isOperatingSystems
+            ? `Independent ${currentCourse?.portalLabel || "Operating Systems"} challenges organized into rounds. Submit shell, Python, or written solutions for instructor review; the portal does not execute them.`
+            : "Independent SQL/PLSQL challenges organized into rounds. Submit your code for instructor review; the portal does not execute it."
+        }
         action={
           <span className="soft-badge">
             <Brain size={15} /> Independent practice
@@ -333,9 +365,9 @@ export default function PracticeArenaPage() {
         </Notice>
       )}
       <Notice type="info">
-        Drafts autosave in this browser. Submitted SQL/PLSQL is not executed or
-        shown as output. It is stored only while awaiting review, then deleted;
-        approval awards +20 points once and locks the challenge.
+        {isOperatingSystems
+          ? "Drafts autosave in this browser. Submitted shell, Python, and written responses are not executed. They are stored only while awaiting review, then deleted; approval awards +20 points once and locks the challenge."
+          : "Drafts autosave in this browser. Submitted SQL/PLSQL is not executed or shown as output. It is stored only while awaiting review, then deleted; approval awards +20 points once and locks the challenge."}
       </Notice>
 
       <nav
@@ -467,13 +499,13 @@ export default function PracticeArenaPage() {
                   <span>
                     <Code2 size={16} /> YOUR SOLUTION
                   </span>
-                  <small>SQL / PL/SQL</small>
+                  <small>{taskLanguageLabel}</small>
                 </div>
                 <div className="practice-code-editor">
                   <CodeMirror
                     value={solution}
                     height="min(48vh, 440px)"
-                    extensions={[sql()]}
+                    extensions={taskLanguage === "sql" ? [sql()] : []}
                     editable={!selectedProgress?.completed}
                     onChange={updateSolution}
                     basicSetup={{
@@ -481,11 +513,7 @@ export default function PracticeArenaPage() {
                       foldGutter: true,
                       autocompletion: true,
                     }}
-                    placeholder={
-                      selectedProgress?.completed
-                        ? "This challenge is locked after points were awarded."
-                        : "-- Write your SQL or PL/SQL solution here. Your draft saves automatically."
-                    }
+                    placeholder={editorPlaceholder}
                     aria-label={`Solution editor for ${selectedTask.title}`}
                   />
                 </div>
@@ -596,10 +624,10 @@ export default function PracticeArenaPage() {
                     </div>
                     {latestAttempt.reviewStatus === "pending" && (
                       <p className="practice-validation-note">
-                        Your code is saved for review. No SQL was executed, and
-                        points will be awarded only if your instructor approves
-                        this challenge. You can draft locally, but only one
-                        submission can await review at a time.
+                        Your solution is saved for review. It was not executed,
+                        and points will be awarded only if your instructor
+                        approves this challenge. You can draft locally, but only
+                        one submission can await review at a time.
                       </p>
                     )}
                     {latestAttempt.reviewStatus === "rejected" &&
@@ -617,8 +645,8 @@ export default function PracticeArenaPage() {
                 <span>
                   Each Arena challenge is reviewed independently. Approval
                   awards 20 points once and locks that challenge; requesting
-                  changes awards no points. SQL/PLSQL is stored only until the
-                  review decision, then deleted.
+                  changes awards no points. Submitted solutions are stored only
+                  until the review decision, then deleted.
                 </span>
               </div>
             </>

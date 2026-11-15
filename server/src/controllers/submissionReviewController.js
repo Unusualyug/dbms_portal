@@ -1,31 +1,24 @@
 const mongoose = require("mongoose");
 const PracticalAttempt = require("../models/PracticalAttempt");
 const PracticeArenaAttempt = require("../models/PracticeArenaAttempt");
-const User = require("../models/User");
-const { POINT_VALUES, awardPointsOnce } = require("../services/pointsService");
+const {
+  POINT_VALUES,
+  awardPointsOnce,
+  getCoursePoints,
+} = require("../services/pointsService");
 const {
   normalizeReviewDecision,
   buildReviewFields,
 } = require("../services/submissionReviewService");
-const HttpError = require("../utils/httpError");
-const practiceArenaRounds = require("../../../shared/practiceArena.json");
+const { courseFilter } = require("../services/courseScope");
+const { getChallengeMap } = require("./practiceArenaController");
 const {
   syncStudentModuleManualProgress,
 } = require("../services/moduleManualProgressService");
 const {
   triggerModuleCompletionEmail,
 } = require("../services/moduleCompletionEmailService");
-
-const challengeById = new Map(
-  practiceArenaRounds.flatMap((round) =>
-    round.sections.flatMap((section) =>
-      section.tasks.map((task) => [
-        task.id,
-        { ...task, roundTitle: round.title, sectionTitle: section.title },
-      ]),
-    ),
-  ),
-);
+const HttpError = require("../utils/httpError");
 
 function listParams(query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
@@ -58,6 +51,7 @@ function mapPracticalAttempt(attempt) {
   return {
     id: String(attempt._id),
     type: "practical",
+    courseCode: attempt.courseCode,
     reviewStatus: attempt.reviewStatus || "pending",
     reviewFeedback: attempt.reviewFeedback || "",
     reviewedAt: attempt.reviewedAt || null,
@@ -76,15 +70,17 @@ function mapPracticalAttempt(attempt) {
     title: `Module ${module.moduleNumber || "—"} · Practical ${number}`,
     moduleTitle: module.title || "",
     prompt: practical.prompt || "The practical prompt is unavailable.",
+    language: practical.dialect || "oracle",
   };
 }
 
-function mapArenaAttempt(attempt) {
+function mapArenaAttempt(attempt, courseCode) {
   const student = attempt.studentId || {};
-  const challenge = challengeById.get(attempt.challengeId);
+  const challenge = getChallengeMap(courseCode).get(attempt.challengeId);
   return {
     id: String(attempt._id),
     type: "arena",
+    courseCode: attempt.courseCode,
     reviewStatus: attempt.reviewStatus || "pending",
     reviewFeedback: attempt.reviewFeedback || "",
     reviewedAt: attempt.reviewedAt || null,
@@ -105,12 +101,15 @@ function mapArenaAttempt(attempt) {
       : `Practice Arena · ${attempt.challengeId}`,
     moduleTitle: challenge?.sectionTitle || "Practice Arena",
     prompt: challenge?.prompt || "The challenge prompt is unavailable.",
+    language: challenge?.language || "",
   };
 }
 
 async function listSubmissions(req, res) {
+  const courseCode = req.courseCode;
   const status = req.query.status || "pending";
-  const filter = getStatusFilter(status);
+  const filter = courseFilter(courseCode, getStatusFilter(status));
+  const pendingFilter = courseFilter(courseCode, { reviewStatus: "pending" });
   const type = req.query.type || "all";
   if (!["all", "practical", "arena"].includes(type))
     throw new HttpError(400, "Type must be all, practical, or arena.");
@@ -132,7 +131,7 @@ async function listSubmissions(req, res) {
           .sort(sort)
           .limit(fetchLimit)
           .populate("studentId", "name studentId email semester classSection")
-          .populate("practicalId", "number prompt")
+          .populate("practicalId", "number prompt dialect")
           .populate("moduleId", "moduleNumber title")
           .lean()
       : [],
@@ -145,16 +144,12 @@ async function listSubmissions(req, res) {
       : [],
     shouldQueryPracticals ? PracticalAttempt.countDocuments(filter) : 0,
     shouldQueryArena ? PracticeArenaAttempt.countDocuments(filter) : 0,
-    shouldQueryPracticals
-      ? PracticalAttempt.countDocuments({ reviewStatus: "pending" })
-      : 0,
-    shouldQueryArena
-      ? PracticeArenaAttempt.countDocuments({ reviewStatus: "pending" })
-      : 0,
+    shouldQueryPracticals ? PracticalAttempt.countDocuments(pendingFilter) : 0,
+    shouldQueryArena ? PracticeArenaAttempt.countDocuments(pendingFilter) : 0,
   ]);
   const submissions = [
     ...practicalRows.map(mapPracticalAttempt),
-    ...arenaRows.map(mapArenaAttempt),
+    ...arenaRows.map((attempt) => mapArenaAttempt(attempt, courseCode)),
   ]
     .sort((a, b) => {
       const timeA = new Date(a.submittedAt || 0).getTime();
@@ -164,6 +159,7 @@ async function listSubmissions(req, res) {
     .slice(skip, skip + limit);
   const total = practicalTotal + arenaTotal;
   res.json({
+    courseCode,
     submissions,
     pendingCount: pendingPractical + pendingArena,
     pagination: { page, limit, total, pages: Math.ceil(total / limit) },
@@ -189,6 +185,7 @@ async function reviewSubmission(req, res) {
   } catch (error) {
     throw new HttpError(400, error.message);
   }
+  const courseCode = req.courseCode;
   const reviewedAt = new Date();
   const update = buildReviewFields({
     ...decision,
@@ -196,7 +193,10 @@ async function reviewSubmission(req, res) {
     reviewedAt,
   });
   const attempt = await Model.findOneAndUpdate(
-    { _id: req.params.attemptId, reviewStatus: "pending" },
+    courseFilter(courseCode, {
+      _id: req.params.attemptId,
+      reviewStatus: "pending",
+    }),
     { $set: update },
     { new: true },
   );
@@ -214,22 +214,33 @@ async function reviewSubmission(req, res) {
       type === "practical"
         ? `practical:${attempt.practicalId}`
         : `practice-arena:${attempt.challengeId}`;
+    const resolvedCourseCode = attempt.courseCode || courseCode;
+    const itemCriteria =
+      type === "practical"
+        ? { studentId: attempt.studentId, practicalId: attempt.practicalId }
+        : { studentId: attempt.studentId, challengeId: attempt.challengeId };
+    const itemFilter = courseFilter(resolvedCourseCode, itemCriteria);
     try {
       pointAward = await awardPointsOnce({
         studentId: attempt.studentId,
         awardKey,
         points: POINT_VALUES.practical,
+        courseCode: resolvedCourseCode,
       });
-      const itemFilter =
-        type === "practical"
-          ? { studentId: attempt.studentId, practicalId: attempt.practicalId }
-          : { studentId: attempt.studentId, challengeId: attempt.challengeId };
       await Model.updateOne(
-        { _id: attempt._id, reviewStatus: "approved" },
+        courseFilter(resolvedCourseCode, {
+          _id: attempt._id,
+          reviewStatus: "approved",
+        }),
         { $set: { pointsAwarded: pointAward.pointsAwarded } },
       );
       await Model.updateMany(
-        { ...itemFilter, reviewStatus: "pending", _id: { $ne: attempt._id } },
+        {
+          $and: [
+            itemFilter,
+            { reviewStatus: "pending", _id: { $ne: attempt._id } },
+          ],
+        },
         {
           $set: {
             reviewStatus: "superseded",
@@ -252,15 +263,13 @@ async function reviewSubmission(req, res) {
       attempt.solutionPurgedAt = reviewedAt;
       attempt.submittedCode = undefined;
     } catch (error) {
-      // If the point service completed, keep the approved state even if a later
-      // purge write failed; student list/progress reads and startup cleanup retry it.
       if (pointAward.totalPoints === null) {
         await Model.updateOne(
-          {
+          courseFilter(resolvedCourseCode, {
             _id: attempt._id,
             reviewStatus: "approved",
             reviewedBy: req.user._id,
-          },
+          }),
           {
             $set: {
               reviewStatus: "pending",
@@ -278,7 +287,10 @@ async function reviewSubmission(req, res) {
     }
   } else {
     await Model.updateOne(
-      { _id: attempt._id, reviewStatus: "rejected" },
+      courseFilter(attempt.courseCode || courseCode, {
+        _id: attempt._id,
+        reviewStatus: "rejected",
+      }),
       { $set: { solutionPurgedAt: reviewedAt }, $unset: { submittedCode: 1 } },
     );
     attempt.solutionPurgedAt = reviewedAt;
@@ -290,7 +302,10 @@ async function reviewSubmission(req, res) {
       moduleManualProgress = await syncStudentModuleManualProgress(
         attempt.studentId,
         attempt.moduleId,
-        { queueCompletionEmail: true },
+        {
+          courseCode: attempt.courseCode || courseCode,
+          queueCompletionEmail: true,
+        },
       );
     } catch (error) {
       moduleManualProgressWarning = true;
@@ -298,11 +313,12 @@ async function reviewSubmission(req, res) {
     }
   }
 
-  const latestStudent =
-    pointAward.totalPoints === null
-      ? await User.findById(attempt.studentId).select("totalPoints").lean()
-      : null;
-  const totalPoints = pointAward.totalPoints ?? latestStudent?.totalPoints ?? 0;
+  const totalPoints =
+    pointAward.totalPoints ??
+    (await getCoursePoints({
+      studentId: attempt.studentId,
+      courseCode: attempt.courseCode || courseCode,
+    }));
   const io = req.app?.get("io");
   if (io)
     io.to(`student:${attempt.studentId}`).emit("student:submission-reviewed", {
@@ -311,6 +327,7 @@ async function reviewSubmission(req, res) {
         type === "practical"
           ? String(attempt.practicalId)
           : attempt.challengeId,
+      courseCode: attempt.courseCode || courseCode,
       reviewStatus: attempt.reviewStatus,
       reviewFeedback: attempt.reviewFeedback,
       completed: decision.decision === "approve",
@@ -319,6 +336,7 @@ async function reviewSubmission(req, res) {
       moduleManualStatus: moduleManualProgress?.moduleManualStatus || null,
     });
   res.json({
+    courseCode: attempt.courseCode || courseCode,
     submission: {
       id: String(attempt._id),
       type,
@@ -343,9 +361,8 @@ async function reviewSubmission(req, res) {
       : null,
     moduleManualProgressWarning,
   });
-  if (moduleManualProgress?.completionEmailQueued) {
+  if (moduleManualProgress?.completionEmailQueued)
     triggerModuleCompletionEmail(moduleManualProgress._id);
-  }
 }
 
 module.exports = { listSubmissions, reviewSubmission };

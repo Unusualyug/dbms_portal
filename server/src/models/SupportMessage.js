@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const supportMessageSchema = new mongoose.Schema(
   {
+    courseCode: { type: String, required: true, trim: true, index: true },
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -49,8 +50,12 @@ const supportMessageSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-supportMessageSchema.index({ studentId: 1, createdAt: -1 });
-supportMessageSchema.index({ status: 1, createdAt: 1 });
-supportMessageSchema.index({ replyEmailStatus: 1, replyEmailNextAttemptAt: 1 });
+supportMessageSchema.index({ studentId: 1, courseCode: 1, createdAt: -1 });
+supportMessageSchema.index({ courseCode: 1, status: 1, createdAt: 1 });
+supportMessageSchema.index({
+  courseCode: 1,
+  replyEmailStatus: 1,
+  replyEmailNextAttemptAt: 1,
+});
 
 module.exports = mongoose.model("SupportMessage", supportMessageSchema);

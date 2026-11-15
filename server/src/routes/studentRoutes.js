@@ -11,6 +11,7 @@ const activity = require("../controllers/activityController");
 const code = require("../controllers/codeController");
 const support = require("../controllers/supportController");
 const examResult = require("../controllers/examResultController");
+const course = require("../controllers/courseController");
 const router = express.Router();
 const supportSubmissionLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -25,6 +26,8 @@ const supportSubmissionLimiter = rateLimit({
 
 router.use(requireDatabase, requireAuth, requireRole("student"));
 router.get("/dashboard", asyncHandler(student.getDashboard));
+router.get("/courses", asyncHandler(course.listCourses));
+router.get("/progress-summary", asyncHandler(course.progressSummary));
 router.get("/hall-of-fame", asyncHandler(student.getHallOfFame));
 router.get("/support", asyncHandler(support.listStudentSupportMessages));
 router.post(
@@ -75,5 +78,6 @@ router.post("/activity", asyncHandler(activity.track));
 router.post("/activity/pulse", asyncHandler(activity.pulse));
 router.post("/activity/timer/start", asyncHandler(activity.timerStart));
 router.post("/activity/timer/heartbeat", asyncHandler(activity.timerHeartbeat));
+router.post("/activity/timer/stop-all", asyncHandler(activity.timerStopAll));
 
 module.exports = router;

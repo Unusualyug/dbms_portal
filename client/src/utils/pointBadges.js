@@ -28,7 +28,22 @@ export const POINT_MILESTONE_BADGES = Object.freeze([
   },
 ]);
 
-export function getEarnedPointBadges(totalPoints) {
+export function getPointBadgesForCourse(courseName = "DBMS") {
+  const label = String(courseName || "DBMS");
+  return POINT_MILESTONE_BADGES.map((badge) =>
+    badge.id === "dbms-legend"
+      ? {
+          ...badge,
+          name: `${label} Legend`,
+          description: `Awarded for earning 2,000 points in ${label}.`,
+        }
+      : badge,
+  );
+}
+
+export function getEarnedPointBadges(totalPoints, courseName = "DBMS") {
   const points = Math.max(0, Number(totalPoints) || 0);
-  return POINT_MILESTONE_BADGES.filter((badge) => points >= badge.points);
+  return getPointBadgesForCourse(courseName).filter(
+    (badge) => points >= badge.points,
+  );
 }

@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useCourse } from "../context/CourseContext.jsx";
 import { usePresenceHeartbeat } from "../hooks/usePresenceHeartbeat.js";
 import { connectPortalSocket } from "../services/socket.js";
 import ThemeToggle from "../components/ThemeToggle.jsx";
@@ -105,6 +106,14 @@ const adminLinks = [
 
 export default function PortalLayout({ role }) {
   const { user, logout, refresh } = useAuth();
+  const {
+    courseCode,
+    currentCourse,
+    courses,
+    loadingCourses,
+    selectCourse,
+    courseError,
+  } = useCourse();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -123,11 +132,13 @@ export default function PortalLayout({ role }) {
       socket.off("student:submission-reviewed", handleSubmissionReview);
   }, [role, user, refresh]);
   const links = role === "admin" ? adminLinks : studentLinks;
-  const title = role === "admin" ? "DBMS Admin" : "DBMS Learning";
   const onLogout = async () => {
     await logout();
     navigate("/login");
   };
+  useEffect(() => {
+    document.title = `${currentCourse?.shortName || "GMIU"} ${role === "admin" ? "Admin" : "Learning Portal"}`;
+  }, [currentCourse?.shortName, role]);
 
   return (
     <div className={`portal-frame portal-frame-${role}`}>
@@ -150,7 +161,7 @@ export default function PortalLayout({ role }) {
           </div>
           <div className="brand-lockup-copy">
             <strong>
-              GMIU <span>DBMS</span>
+              GMIU <span>{currentCourse?.shortName || "DBMS"}</span>
             </strong>
             <small>LEARNING PORTAL</small>
           </div>
@@ -179,14 +190,42 @@ export default function PortalLayout({ role }) {
           <span className="course-chip-icon">
             <GraduationCap size={17} />
           </span>
-          <span>
-            <b>
-              {role === "student"
-                ? `DBMS · Sem ${user?.semester || "—"} · ${user?.classSection || "—"}`
-                : "DBMS · Admin"}
-            </b>
-            <small>BETICE13305</small>
-          </span>
+          <label
+            className="course-chip-copy"
+            htmlFor={`active-course-${role}`}
+            title={currentCourse?.subjectName || currentCourse?.portalLabel}
+          >
+            <span className="course-chip-label">ACTIVE SUBJECT</span>
+            <select
+              id={`active-course-${role}`}
+              className="course-chip-select"
+              value={courseCode}
+              onChange={(event) => selectCourse(event.target.value)}
+              disabled={loadingCourses || courses.length < 2}
+              aria-label="Choose active subject"
+              aria-describedby={
+                courseError ? `course-error-${role}` : undefined
+              }
+            >
+              {courses.length ? (
+                courses.map((course) => (
+                  <option key={course.code} value={course.code}>
+                    {course.shortName} · {course.code}
+                  </option>
+                ))
+              ) : (
+                <option value={courseCode}>
+                  {currentCourse?.shortName || "DBMS"} · {courseCode}
+                </option>
+              )}
+            </select>
+            <small id={courseError ? `course-error-${role}` : undefined}>
+              {courseError ||
+                (role === "student"
+                  ? `Course Sem ${currentCourse?.semester || user?.semester || "—"} · Class ${user?.classSection || "—"}`
+                  : "Administrator workspace")}
+            </small>
+          </label>
         </div>
         {role === "student" ? (
           <nav
@@ -330,7 +369,7 @@ export default function PortalLayout({ role }) {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               className="page-route"
-              key={location.pathname}
+              key={`${location.pathname}:${courseCode}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -341,7 +380,7 @@ export default function PortalLayout({ role }) {
           </AnimatePresence>
         </main>
         <footer className="app-footer">
-          <span>DBMS Learning Portal</span>
+          <span>{currentCourse?.portalLabel || "Learning"} Portal</span>
           <span>Official syllabus-aligned · {new Date().getFullYear()}</span>
           <span>Designed &amp; developed by Yug Lakhani</span>
         </footer>

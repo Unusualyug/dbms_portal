@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, FileCheck2, GraduationCap } from "lucide-react";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
@@ -21,6 +22,7 @@ function formatNumber(value) {
 }
 
 export default function StudentExamResultPage() {
+  const { courseCode } = useCourse();
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,6 +32,7 @@ export default function StudentExamResultPage() {
     let active = true;
     setLoading(true);
     setError("");
+    setAssessments([]);
     api
       .get("/student/exam-result")
       .then((result) => {
@@ -47,7 +50,7 @@ export default function StudentExamResultPage() {
     return () => {
       active = false;
     };
-  }, [refreshKey]);
+  }, [courseCode, refreshKey]);
 
   if (loading && !assessments.length)
     return <Loading label="Loading Exam Result…" />;

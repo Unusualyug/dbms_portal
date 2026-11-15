@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
   CircleAlert,
@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
 import { formatDate } from "../utils/format.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
@@ -18,9 +19,9 @@ import Notice from "../components/Notice.jsx";
 
 function emailStatusText(status) {
   if (status === "sent")
-    return "Google accepted the email for the student's saved address. Inbox delivery is not independently verified.";
+    return "Gmail SMTP accepted the email for the student's saved address. Inbox delivery is not independently verified.";
   if (status === "failed")
-    return "Email attempt failed. The portal reply is saved; check Gmail API settings and backend logs, then retry.";
+    return "Email attempt failed. The portal reply is saved; check SMTP settings and backend logs, then retry.";
   if (status === "sending")
     return "The portal reply is saved; email delivery is in progress.";
   if (status === "pending")
@@ -33,6 +34,10 @@ function canDelete(request) {
 }
 
 export default function AdminSupportPage() {
+  const { courseCode } = useCourse();
+  const currentCourseCodeRef = useRef(courseCode);
+  currentCourseCodeRef.current = courseCode;
+  const requestSequenceRef = useRef(0);
   const [filter, setFilter] = useState("open");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,17 +48,31 @@ export default function AdminSupportPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const loadInbox = useCallback(async () => {
+    const requestedCourseCode = courseCode;
+    const requestSequence = ++requestSequenceRef.current;
+    setData((current) =>
+      current?.courseCode === requestedCourseCode ? current : null,
+    );
     setLoading(true);
     setError("");
     try {
       const result = await api.get(`/admin/support?status=${filter}`);
-      setData(result);
+      if (
+        requestSequence === requestSequenceRef.current &&
+        currentCourseCodeRef.current === requestedCourseCode &&
+        result.courseCode === requestedCourseCode
+      )
+        setData(result);
     } catch (requestError) {
-      setError(requestError.message || "Could not load the support inbox.");
+      if (
+        requestSequence === requestSequenceRef.current &&
+        currentCourseCodeRef.current === requestedCourseCode
+      )
+        setError(requestError.message || "Could not load the support inbox.");
     } finally {
-      setLoading(false);
+      if (requestSequence === requestSequenceRef.current) setLoading(false);
     }
-  }, [filter]);
+  }, [courseCode, filter]);
 
   useEffect(() => {
     loadInbox();
@@ -109,7 +128,7 @@ export default function AdminSupportPage() {
     try {
       await api.post(`/admin/support/${request.id}/retry-email`, {});
       setNotice(
-        "Email retry queued. The request will remain here until Google accepts the email for sending.",
+        "Email retry queued. The request will remain here until Gmail SMTP accepts the email for sending.",
       );
       setRefreshKey((value) => value + 1);
     } catch (requestError) {
@@ -122,7 +141,7 @@ export default function AdminSupportPage() {
   const readAndDelete = async (request) => {
     if (!canDelete(request)) return;
     const confirmed = window.confirm(
-      "Read and permanently delete this request and its saved reply? The student portal thread will disappear. Any email already accepted by Google is outside the portal and cannot be recalled; inbox delivery is not independently verified.",
+      "Read and permanently delete this request and its saved reply? The student portal thread will disappear. Any email already accepted by Gmail SMTP is outside the portal and cannot be recalled; inbox delivery is not independently verified.",
     );
     if (!confirmed) return;
     setBusyId(request.id);
@@ -164,10 +183,10 @@ export default function AdminSupportPage() {
       />
       <Notice type="info">
         Admin replies appear in the student’s portal and trigger an email
-        attempt to their saved address through Google. “Read &amp; delete”
+        attempt to their saved address through Gmail SMTP. “Read &amp; delete”
         permanently removes the request and reply. A replied request stays here
-        until Google accepts the email for sending; this does not verify arrival
-        in the student’s inbox.
+        until Gmail SMTP accepts the email for sending; this does not verify
+        arrival in the student’s inbox.
       </Notice>
       {error && <Notice type="error">{error}</Notice>}
       {notice && <Notice type="success">{notice}</Notice>}
@@ -299,8 +318,8 @@ export default function AdminSupportPage() {
                 />
                 <div className="admin-support-actions">
                   <small>
-                    Reply appears in the portal; Google will attempt the email
-                    to the saved account address.
+                    Reply appears in the portal; Gmail SMTP will attempt the
+                    email to the saved account address.
                   </small>
                   <button
                     className="button button-dark button-sm"
@@ -353,7 +372,8 @@ export default function AdminSupportPage() {
               {!canDelete(request) && (
                 <span className="admin-support-delete-hold">
                   <Clock3 size={13} />
-                  Keep this request until Google accepts the email for sending.
+                  Keep this request until Gmail SMTP accepts the email for
+                  sending.
                 </span>
               )}
               <button
@@ -363,7 +383,7 @@ export default function AdminSupportPage() {
                 disabled={!canDelete(request) || busyId === request.id}
                 title={
                   !canDelete(request)
-                    ? "Google must accept the reply email before deleting."
+                    ? "Gmail SMTP must accept the reply email before deleting."
                     : "Permanently delete request and reply"
                 }
               >

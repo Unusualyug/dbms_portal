@@ -1322,17 +1322,58 @@ select:focus-visible {
   background: rgba(35, 186, 159, 0.13);
   border-radius: 9px;
 }
-.course-chip b {
+.course-chip-copy {
   display: block;
+  flex: 1;
+  min-width: 0;
+}
+.course-chip-label {
+  display: block;
+  color: #8194a3;
+  font-size: 7px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+.course-chip-select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 2px 0 0;
+  padding: 0 14px 0 0;
+  overflow: hidden;
   color: #d6e0e7;
-  font-size: 9px;
-  font-weight: 700;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.course-chip-select:focus-visible {
+  outline: 2px solid #68d7c2;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.course-chip-select:disabled {
+  opacity: 0.88;
+  cursor: default;
+}
+.course-chip-select option {
+  color: #132438;
+  background: #ffffff;
 }
 .course-chip small {
   display: block;
+  max-width: 100%;
   margin-top: 3px;
+  overflow: hidden;
   color: #8194a3;
   font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .nav-eyebrow {
   padding: 0 11px;

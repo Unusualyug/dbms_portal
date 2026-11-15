@@ -7,10 +7,12 @@ const content = require("../controllers/contentController");
 const submissions = require("../controllers/submissionReviewController");
 const support = require("../controllers/supportController");
 const examResult = require("../controllers/examResultController");
+const course = require("../controllers/courseController");
 const router = express.Router();
 
 router.use(requireDatabase, requireAuth, requireRole("admin"));
 router.get("/dashboard", asyncHandler(admin.dashboard));
+router.get("/courses", asyncHandler(course.listCourses));
 router.get("/students", asyncHandler(admin.students));
 router.delete("/students/:id", asyncHandler(admin.removeStudent));
 router.get("/students/:id", asyncHandler(admin.studentDetail));

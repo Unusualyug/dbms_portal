@@ -13,6 +13,7 @@
     "seed:course": "npm run seed:course --workspace=server",
     "seed:admin": "npm run seed:admin --workspace=server",
     "seed": "npm run seed --workspace=server",
+    "migrate:course-indexes": "npm run migrate:course-indexes --workspace=server",
     "validate:course": "node scripts/validate-course.js",
     "test": "npm run test --workspace=server"
   },

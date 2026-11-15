@@ -79,10 +79,12 @@ test("module manual reconciliation persists per-student status for each module",
     { _id: { studentId: "student-1", practicalId: "p1-a" } },
     { _id: { studentId: "student-1", practicalId: "p1-b" } },
     { _id: { studentId: "student-2", practicalId: "p1-a" } },
+    { _id: { studentId: "student-2", practicalId: "p2-a" } },
   ];
   const users = [
     { _id: "student-1", pointAwardKeys: [] },
     { _id: "student-2", pointAwardKeys: ["practical:p2-a"] },
+    { _id: "student-3", pointAwardKeys: ["practical:p2-a"] },
   ];
   const existing = [
     {
@@ -96,8 +98,22 @@ test("module manual reconciliation persists per-student status for each module",
 
   const restore = [
     replace(Module, "find", (filter) => {
-      assert.equal(filter.courseCode, COURSE_CODE);
-      assert.equal(filter.isActive, true);
+      assert.deepEqual(
+        filter,
+        {
+          $and: [
+            { isActive: true },
+            {
+              $or: [
+                { courseCode: COURSE_CODE },
+                { courseCode: { $exists: false } },
+                { courseCode: null },
+              ],
+            },
+          ],
+        },
+        "DBMS reads include both explicitly tagged and legacy untagged records",
+      );
       return fakeQuery(modules);
     }),
     replace(Practical, "find", () => fakeQuery(practicals)),
@@ -113,11 +129,11 @@ test("module manual reconciliation persists per-student status for each module",
 
   try {
     const result = await syncModuleManualProgressForStudents(
-      ["student-1", "student-2"],
+      ["student-1", "student-2", "student-3"],
       { queueCompletionEmail: true },
     );
     assert.equal(result.modules.length, 2);
-    assert.equal(result.rows.length, 4);
+    assert.equal(result.rows.length, 6);
     const row = (studentId, moduleNumber) =>
       result.rows.find(
         (item) =>
@@ -156,7 +172,24 @@ test("module manual reconciliation persists per-student status for each module",
       ],
       ["completed", 1, 1],
     );
-    assert.equal(row("student-2", 2).completionEmailQueued, true);
+    assert.equal(
+      row("student-2", 2).completionEmailQueued,
+      true,
+      "a newly completed module queues only after the approved-attempt aggregate covers every practical",
+    );
+    assert.deepEqual(
+      [
+        row("student-3", 2).moduleManualStatus,
+        row("student-3", 2).completedPracticals,
+      ],
+      ["completed", 1],
+      "legacy award keys remain visible in reports",
+    );
+    assert.equal(
+      row("student-3", 2).completionEmailQueued,
+      false,
+      "legacy award keys alone cannot trigger an email",
+    );
     assert.equal(
       row("student-1", 1).completionEmailQueued,
       false,
@@ -175,7 +208,19 @@ test("module manual reconciliation persists per-student status for each module",
       undefined,
       "old completions are not queued retroactively",
     );
-    assert.equal(bulkOperations.length, 4);
+    assert.equal(
+      bulkOperations[5].updateOne.update.$set.completionEmailQueuedAt,
+      undefined,
+      "unapproved legacy completions are not queued",
+    );
+    assert.ok(
+      bulkOperations.every(
+        (operation) =>
+          !Object.hasOwn(operation.updateOne.update.$setOnInsert, "courseCode"),
+      ),
+      "courseCode is updated through $set only",
+    );
+    assert.equal(bulkOperations.length, 6);
     assert.ok(bulkOperations.every((operation) => operation.updateOne.upsert));
   } finally {
     restore.reverse().forEach((restoreMethod) => restoreMethod());

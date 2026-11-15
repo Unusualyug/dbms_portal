@@ -10,6 +10,7 @@ const subjectMarkSchema = new mongoose.Schema(
 
 const examResultSchema = new mongoose.Schema(
   {
+    courseCode: { type: String, required: true, trim: true, index: true },
     assessmentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ExamAssessment",
@@ -23,6 +24,7 @@ const examResultSchema = new mongoose.Schema(
       index: true,
     },
     marks: { type: [subjectMarkSchema], default: [] },
+    publishedAt: { type: Date, default: null, index: true },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -33,9 +35,9 @@ const examResultSchema = new mongoose.Schema(
 );
 
 examResultSchema.index(
-  { assessmentId: 1, studentId: 1 },
-  { unique: true, name: "one_exam_result_per_student_assessment" },
+  { courseCode: 1, assessmentId: 1, studentId: 1 },
+  { unique: true, name: "one_exam_result_per_course_assessment_student" },
 );
-examResultSchema.index({ studentId: 1, updatedAt: -1 });
+examResultSchema.index({ studentId: 1, courseCode: 1, updatedAt: -1 });
 
 module.exports = mongoose.model("ExamResult", examResultSchema);

@@ -20,13 +20,15 @@ import {
 } from "lucide-react";
 import { api } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useCourse } from "../context/CourseContext.jsx";
 import { formatDate } from "../utils/format.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import PointBadge from "../components/PointBadge.jsx";
 import BadgePins from "../components/BadgePins.jsx";
+import Notice from "../components/Notice.jsx";
 import {
   getEarnedPointBadges,
-  POINT_MILESTONE_BADGES,
+  getPointBadgesForCourse,
 } from "../utils/pointBadges.js";
 
 const initialPasswordForm = {
@@ -39,6 +41,7 @@ const PROFILE_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export default function ProfilePage() {
   const { user, logout, refresh } = useAuth();
+  const { courseCode, currentCourse } = useCourse();
   const photoInputRef = useRef(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState("");
@@ -51,12 +54,18 @@ export default function ProfilePage() {
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [coursePoints, setCoursePoints] = useState(null);
+  const [pointsError, setPointsError] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const totalPoints = Math.max(0, Number(user?.totalPoints) || 0);
-  const earnedPointBadges = getEarnedPointBadges(totalPoints);
-  const nextPointBadge = POINT_MILESTONE_BADGES.find(
+  const totalPoints = Math.max(0, Number(coursePoints) || 0);
+  const courseBadges = getPointBadgesForCourse(currentCourse?.portalLabel);
+  const earnedPointBadges = getEarnedPointBadges(
+    totalPoints,
+    currentCourse?.portalLabel,
+  );
+  const nextPointBadge = courseBadges.find(
     (badge) => totalPoints < badge.points,
   );
 
@@ -66,6 +75,29 @@ export default function ProfilePage() {
   useEffect(() => {
     setName(user?.name || "");
   }, [user?.name]);
+  useEffect(() => {
+    let current = true;
+    setCoursePoints(null);
+    setPointsError("");
+    api
+      .get("/student/progress-summary")
+      .then((data) => {
+        if (current) {
+          setCoursePoints(Number(data.points) || 0);
+          setPointsError("");
+        }
+      })
+      .catch((error) => {
+        if (current)
+          setPointsError(error.message || "Could not load course points.");
+      })
+      .finally(() => {
+        if (current) setCoursePoints((value) => value ?? 0);
+      });
+    return () => {
+      current = false;
+    };
+  }, [courseCode]);
 
   const saveName = async (event) => {
     event.preventDefault();
@@ -164,9 +196,16 @@ export default function ProfilePage() {
         title="Your profile"
         description="Review your saved details, add a profile photo, edit your name, or update your password."
       />
+      {pointsError && (
+        <Notice type="error">
+          Course points could not be loaded: {pointsError}
+        </Notice>
+      )}
       <div className="profile-layout">
         <section className="profile-card surface-card">
-          <div className="profile-avatar-badge-wrap">
+          <div
+            className={`profile-avatar-badge-wrap ${earnedPointBadges.length ? "has-badge-pins" : ""}`}
+          >
             <button
               className="profile-avatar-wrap profile-avatar-button"
               type="button"
@@ -293,7 +332,11 @@ export default function ProfilePage() {
           <ProfileItem
             icon={Award}
             label="Points earned"
-            value={`${(user?.totalPoints || 0).toLocaleString()} points`}
+            value={
+              coursePoints === null
+                ? "Loading…"
+                : `${totalPoints.toLocaleString()} points · ${currentCourse?.portalLabel || "course"}`
+            }
           />
           <ProfileItem
             icon={CalendarDays}
@@ -321,12 +364,11 @@ export default function ProfilePage() {
               <h2 id="profile-badges-title">Achievement badges</h2>
             </div>
             <span className="profile-badge-count">
-              {earnedPointBadges.length} / {POINT_MILESTONE_BADGES.length}{" "}
-              earned
+              {earnedPointBadges.length} / {courseBadges.length} earned
             </span>
           </div>
           <div className="profile-badges-grid">
-            {POINT_MILESTONE_BADGES.map((badge) => (
+            {courseBadges.map((badge) => (
               <PointBadge
                 key={badge.id}
                 badge={badge}

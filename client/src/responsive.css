@@ -1791,9 +1791,15 @@ canvas {
   background: var(--surface-soft);
   border-color: var(--border);
 }
-.sidebar-student .course-chip b {
+.sidebar-student .course-chip-label {
+  color: var(--text-muted);
+}
+.sidebar-student .course-chip-select {
   color: var(--text-primary);
-  font-size: 9px;
+  font-size: 10px;
+}
+.sidebar-student .course-chip-select:focus-visible {
+  outline-color: var(--accent-strong);
 }
 .sidebar-student .course-chip small {
   color: var(--text-muted);

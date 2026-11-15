@@ -16,6 +16,9 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { api } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useCourse } from "../context/CourseContext.jsx";
+import { OS_COURSE_CODE } from "../services/courseSelection.js";
+import { getPracticeArena } from "../data/practiceArena.js";
 import { formatDuration, formatTimeAgo } from "../utils/format.js";
 import { chartColors } from "../utils/analytics.js";
 import StatCard from "../components/StatCard.jsx";
@@ -25,18 +28,41 @@ import Notice from "../components/Notice.jsx";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const { courseCode, currentCourse } = useCourse();
+  const arenaCatalog = getPracticeArena(courseCode);
+  const arenaTags =
+    courseCode === OS_COURSE_CODE
+      ? ["Shell", "Processes", "Memory", "Concurrency"]
+      : ["DDL & DML", "Joins", "Sequences", "PL/SQL"];
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   useEffect(() => {
+    let active = true;
+    setData(null);
+    setError("");
     const load = () =>
       api
         .get("/student/dashboard")
-        .then(setData)
-        .catch((requestError) => setError(requestError.message));
+        .then((result) => {
+          if (active) setData(result);
+        })
+        .catch((requestError) => {
+          if (active) setError(requestError.message);
+        });
+    const onSubmissionReviewed = (event) => {
+      const eventCourseCode = event.detail?.courseCode;
+      if (!eventCourseCode || eventCourseCode === courseCode) load();
+    };
     load();
-    window.addEventListener("portal:submission-reviewed", load);
-    return () => window.removeEventListener("portal:submission-reviewed", load);
-  }, []);
+    window.addEventListener("portal:submission-reviewed", onSubmissionReviewed);
+    return () => {
+      active = false;
+      window.removeEventListener(
+        "portal:submission-reviewed",
+        onSubmissionReviewed,
+      );
+    };
+  }, [courseCode]);
   if (!data && !error) return <Loading />;
   const stats = data?.stats || {};
   const attempted = stats.questionsAttempted || 0;
@@ -68,8 +94,8 @@ export default function StudentDashboard() {
             Good to see you, <em>{firstName}.</em>
           </h1>
           <p>
-            Small, consistent study sessions add up. Here’s where your DBMS
-            journey stands today.
+            Small, consistent study sessions add up. Here’s where your{" "}
+            {currentCourse?.shortName || "course"} journey stands today.
           </p>
         </div>
         <Link to={continueHref} className="button button-dark">
@@ -142,7 +168,7 @@ export default function StudentDashboard() {
           ) : (
             <>
               <h3>Your syllabus path is clear.</h3>
-              <p>Open a module to review the official DBMS topics.</p>
+              <p>Open a module to review the official course topics.</p>
               <Link className="button button-light" to="/student/modules">
                 Browse modules <ArrowRight size={15} />
               </Link>
@@ -235,17 +261,19 @@ export default function StudentDashboard() {
               <Brain size={23} />
             </div>
             <div className="practice-arena-promo-copy">
-              <span className="eyebrow">INDEPENDENT PRACTICE · 7 ROUNDS</span>
+              <span className="eyebrow">
+                INDEPENDENT PRACTICE · {arenaCatalog.counts.rounds} ROUNDS
+              </span>
               <h2 id="dashboard-practice-arena-title">🧠 Practice Arena</h2>
               <p>
-                Work through the extra SQL and PL/SQL practical questions,
-                organized by round—not by course module.
+                {courseCode === OS_COURSE_CODE
+                  ? "Work through operating-systems challenges in shell fundamentals, process management, memory, and concurrency."
+                  : "Work through extra SQL and PL/SQL challenges organized by round—not by course module."}
               </p>
               <div className="practice-arena-tags">
-                <span>DDL &amp; DML</span>
-                <span>Joins</span>
-                <span>Sequences</span>
-                <span>PL/SQL</span>
+                {arenaTags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
               </div>
             </div>
             <Link to="/student/arena" className="button button-dark">

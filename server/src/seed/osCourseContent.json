@@ -1,0 +1,1339 @@
+{
+  "course": {
+    "title": "Operating System: Architecture, Security, and Process Management",
+    "courseCode": "BET1CE14311",
+    "institution": "Gyanmanjari Innovative University",
+    "institute": "Gyanmanjari Institute of Technology",
+    "program": "B. Tech.",
+    "semester": 4,
+    "prerequisite": "Linear and non-linear data structures and knowledge of any structured programming language",
+    "type": "Professional Core",
+    "courseHours": 90,
+    "credits": 5,
+    "teachingScheme": {
+      "classroomInstructions": 4,
+      "tutorial": 0,
+      "practical": 2
+    },
+    "marks": {
+      "semesterEndEvaluation": 100,
+      "continuousComprehensiveEvaluation": 50,
+      "total": 150
+    },
+    "rationale": "This course develops theoretical and practical understanding of operating systems: architecture, UNIX fundamentals, shell scripting, process and thread management, CPU scheduling, memory management, synchronization, deadlocks, inter-process communication, system utilities, disk scheduling, security, and file management.",
+    "courseOutcomes": [
+      {
+        "code": "CO1",
+        "text": "Understand operating systems, UNIX architecture, and shell programming, and develop scripts using decision statements, I/O redirection, and basic commands."
+      },
+      {
+        "code": "CO2",
+        "text": "Analyze process and thread concepts, CPU scheduling, process-control system calls, and develop advanced shell scripts with operators, loops, and multithreading."
+      },
+      {
+        "code": "CO3",
+        "text": "Apply memory-management techniques and implement Unix filters and shell scripting concepts, including pipes, formatting, variables, and comparison operations."
+      },
+      {
+        "code": "CO4",
+        "text": "Evaluate concurrency, synchronization, and deadlock handling in processes, and use IPC and system commands for process and network management."
+      },
+      {
+        "code": "CO5",
+        "text": "Demonstrate file-system management, disk scheduling, computer-security principles, and file handling with compression using advanced shell scripting and arrays."
+      }
+    ],
+    "suggestedBloomDistribution": {
+      "Remember": 15,
+      "Understand": 15,
+      "Apply": 20,
+      "Analyze": 15,
+      "Evaluate": 15,
+      "Create": 20
+    },
+    "instructionalMethod": [
+      "Course delivery may use demonstrations, role play, quizzes, brainstorming, MOOCs, and other tools alongside conventional teaching.",
+      "Internal evaluation is based on continuous evaluation in laboratory and classroom activities.",
+      "The practical examination is conducted at the end of the semester.",
+      "Supplementary resources may include online videos, NPTEL videos, e-courses, and virtual laboratories."
+    ],
+    "referenceBooks": [
+      "Operating System Concepts — Abraham Silberschatz, Peter B. Galvin, and Greg Gagne, Wiley.",
+      "Unix Concepts and Applications — Sumitabha Das, Tata McGraw-Hill.",
+      "Principles of Operating Systems — Naresh Chauhan, Oxford University Press.",
+      "Modern Operating Systems, 3rd edition — Andrew S. Tanenbaum, PHI.",
+      "Operating Systems: Internals and Design Principles, 6th edition — William Stallings, Pearson Education."
+    ],
+    "sourceFile": "2026-02-03-95-BET1CE14311-Operating System Architecture, Security, and Process Management.pdf",
+    "sourceNotes": [
+      "Course metadata, module titles, theory topics, assessment activities, and all 111 practical prompts are transcribed from the official 16-page scanned GMIU course file supplied by the student.",
+      "The syllabus has five 18-hour modules, each with 20% course-content weightage. The scanned practical list numbers tasks consecutively from 1 through 111; the portal preserves those source numbers.",
+      "Practice Arena tasks and quick-check questions are supplementary, portal-authored exercises; they are not represented as official course practicals.",
+      "Student code is saved for instructor review only. The portal does not execute OS practical submissions."
+    ]
+  },
+  "modules": [
+    {
+      "moduleNumber": 1,
+      "id": "os-module-1",
+      "title": "Introduction to Operating System",
+      "hours": 18,
+      "weightagePercent": 20,
+      "sourcePages": [2, 3],
+      "topics": [
+        {
+          "id": "os-m1-os-purpose",
+          "title": "Operating-system purpose and services",
+          "group": "OS foundations and architecture",
+          "explanation": "An operating system manages a computer's hardware resources and provides services that let applications and people use them safely. It coordinates programs, memory, devices, files, and access to shared resources.",
+          "importantPoints": [
+            "The OS is the intermediary between applications/users and hardware.",
+            "It manages resources and provides common services such as program execution and file access.",
+            "The need for an OS grows as systems share processors, memory, storage, and devices."
+          ],
+          "example": "When a program opens a file, it requests an OS service rather than directly controlling the storage device.",
+          "analogy": "An OS is like a building manager coordinating rooms, keys, utilities, and shared facilities.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m1-computer-architecture",
+          "title": "Computer-system components and architecture",
+          "group": "OS foundations and architecture",
+          "explanation": "A computer system combines processors, memory, I/O devices, and storage. The operating system coordinates these components and provides a consistent environment for programs.",
+          "importantPoints": [
+            "The processor executes instructions; memory holds active instructions and data.",
+            "I/O devices connect the system to users and other systems.",
+            "The OS schedules and coordinates access to shared hardware."
+          ],
+          "example": "A music player uses CPU time, memory, a file from storage, and audio output under OS control.",
+          "analogy": "Think of a workshop: the CPU is the worker, memory is the workbench, and devices are specialized tools.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m1-os-views-types",
+          "title": "OS views, functions, and system types",
+          "group": "OS foundations and architecture",
+          "explanation": "An operating system can be viewed from the user's perspective as a convenient interface and from the system perspective as a resource manager. The syllabus compares batch processing, multiprogramming, multitasking, time-sharing, parallel, distributed, real-time, embedded, network, uniprocessor, and multiprocessor systems.",
+          "importantPoints": [
+            "User view emphasizes convenience; system view emphasizes efficient, controlled resource use.",
+            "Time-sharing and multitasking let users or programs share processor time.",
+            "Real-time, embedded, network, distributed, and multiprocessor systems describe different requirements or structures."
+          ],
+          "example": "A real-time controller must respond within timing constraints, while a batch system can process queued jobs with little interaction.",
+          "analogy": "Different OS types are like different transport systems: the right design depends on the passengers, destinations, and timing needs.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m1-unix-architecture",
+          "title": "UNIX architecture, kernel, and system calls",
+          "group": "UNIX and the command line",
+          "explanation": "UNIX separates user programs and the shell from the kernel, which manages core resources. System calls provide controlled entry points for operations such as opening files, creating processes, reading, writing, and executing programs.",
+          "importantPoints": [
+            "The kernel is the privileged core of the operating system.",
+            "System calls let user programs request OS operations.",
+            "A shell is a command interpreter running in user space; it is not the kernel."
+          ],
+          "example": "A shell command that reads a file eventually relies on OS file operations such as open and read.",
+          "analogy": "The shell is a service desk; system calls are request forms; the kernel is the operations team that performs privileged work.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m1-files-directories",
+          "title": "UNIX files, directories, and basic commands",
+          "group": "UNIX and the command line",
+          "explanation": "UNIX presents files and directories through a hierarchical file system. Commands such as pwd, ls, cd, mkdir, touch, cat, rm, whoami, date, and echo let users navigate and inspect their working environment.",
+          "importantPoints": [
+            "pwd prints the current working directory; cd changes it.",
+            "ls lists directory entries; mkdir creates a directory.",
+            "cat displays or combines file contents, while rm removes names from the directory."
+          ],
+          "example": "Use mkdir lab, cd lab, touch notes.txt, and pwd to create a small workspace and verify its location.",
+          "analogy": "Directories are folders in a filing cabinet, and a path is the route you follow to reach one.",
+          "animationKey": "file-tree"
+        },
+        {
+          "id": "os-m1-shells-and-scripts",
+          "title": "Shell types, commands, and script structure",
+          "group": "Shell scripting",
+          "explanation": "A shell reads commands and starts programs. The syllabus compares Sh, Csh, Ksh, Tcsh, Bash, Zsh, and Pdksh, then introduces reusable shell scripts built from commands, variables, input, and output.",
+          "importantPoints": [
+            "A script is a text file containing commands for a shell to interpret.",
+            "Shells share many ideas but differ in syntax and features.",
+            "The shebang line identifies the interpreter used when a script is launched directly."
+          ],
+          "example": "A Bash script can print a heading with echo, save the current directory using pwd, and show the current user with whoami.",
+          "analogy": "A shell script is a recipe: each command is a step, and the shell is the cook that carries them out.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m1-shell-io-conditionals",
+          "title": "Shell input, redirection, tests, and decisions",
+          "group": "Shell scripting",
+          "explanation": "Shell scripts can read user input, display messages, redirect command output, test file attributes, and choose actions with if/then/else or case. These basics make scripts interactive and able to respond to file and input conditions.",
+          "importantPoints": [
+            "read accepts input and echo or printf displays output.",
+            "Redirection sends output to a file; pipes connect one command's output to another command's input.",
+            "The test command and file tests such as -e, -f, -d, -r, -w, and -x support conditional decisions."
+          ],
+          "example": "A script can ask for a filename, test whether it exists and is readable, then print a useful result using if/else.",
+          "analogy": "A condition is a fork in a road: the script checks a sign and follows the matching route.",
+          "animationKey": "query-filter"
+        }
+      ],
+      "practicals": [
+        {
+          "number": 1,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Install UNIX OS or use an online UNIX simulator and explore the interface, such as WSL (Windows Subsystem for Linux), Tutorialspoint online Linux terminal, Bellard JSLinux, TerminalTemple, or OneCompiler."
+        },
+        {
+          "number": 2,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a command to display the current shell."
+        },
+        {
+          "number": 3,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a script that prints the default shell and checks whether Bash, Zsh, Ksh, and Sh are installed."
+        },
+        {
+          "number": 4,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a script that displays the current date, current directory, and logged-in users using basic Unix commands."
+        },
+        {
+          "number": 5,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a script that stores the output of ls, pwd, and whoami commands in variables and prints them."
+        },
+        {
+          "number": 6,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a shell script that creates a new directory using mkdir, changes into it using cd, and displays the current working directory using pwd."
+        },
+        {
+          "number": 7,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a shell script that uses the cat command to create a file and display its contents."
+        },
+        {
+          "number": 8,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a shell script that uses the ls command to list all files and directories in the current path."
+        },
+        {
+          "number": 9,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write a shell script that uses echo to print a user-defined message and cat to display the contents of an existing file."
+        },
+        {
+          "number": 10,
+          "sourcePage": 2,
+          "dialect": "bash",
+          "prompt": "Write an interactive script that reads the user's name and age and prints a greeting message."
+        },
+        {
+          "number": 11,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that reads two numbers from the user and prints their sum."
+        },
+        {
+          "number": 12,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that redirects the output of date, who, and pwd commands to system_info.log."
+        },
+        {
+          "number": 13,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that backs up a file and redirects success or failure status to backup.log."
+        },
+        {
+          "number": 14,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that checks whether a given filename exists and whether it is a regular file or a directory."
+        },
+        {
+          "number": 15,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that checks whether a given file is empty or not using the -s test operator."
+        },
+        {
+          "number": 16,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that checks whether a file has read, write, and execute permissions."
+        },
+        {
+          "number": 17,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script that uses the test command to compare two numbers and prints the larger one."
+        },
+        {
+          "number": 18,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script using if-else to check whether a number is even or odd."
+        },
+        {
+          "number": 19,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a script using if-elif-else to determine whether a number is positive, negative, or zero."
+        },
+        {
+          "number": 20,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a menu-driven shell script using case to list files, show the current directory, display the date and calendar, and exit."
+        },
+        {
+          "number": 21,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display the current user, date, time, and working directory."
+        },
+        {
+          "number": 22,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Write a mini shell program that executes commands with arguments, for example ls -l or cat filename."
+        },
+        {
+          "number": 23,
+          "sourcePage": 3,
+          "dialect": "bash",
+          "prompt": "Solve the unsolved questions on decision statements given in the reference book."
+        }
+      ],
+      "assessments": [
+        {
+          "title": "SmartShell: A Unified File Handling Utility",
+          "marks": 20,
+          "description": "Write a shell script demonstrating core UNIX concepts, user input, file tests, conditions, I/O redirection, and basic command execution."
+        },
+        {
+          "title": "OS Explorer Lab: Discover, Analyze & Automate in UNIX",
+          "marks": 10,
+          "description": "Explore OS concepts and UNIX commands in an online simulator; explain the need for an OS, draw a simple OS architecture diagram, relate commands such as ls, mkdir, cd, touch, rm, cat, echo, and whoami to system calls including open, read, write, fork, and exec, then create and run filecheck.sh to test file existence and permissions. Compile observations, screenshots, script, and outputs into a PDF."
+        }
+      ]
+    },
+    {
+      "moduleNumber": 2,
+      "id": "os-module-2",
+      "title": "Process Management and CPU Scheduling",
+      "hours": 18,
+      "weightagePercent": 20,
+      "sourcePages": [4, 5, 6],
+      "topics": [
+        {
+          "id": "os-m2-process-concept",
+          "title": "Processes, states, and the process life cycle",
+          "group": "Process management",
+          "explanation": "A process is a program in execution, together with its current state and resources. It moves among states such as new, ready, running, waiting, and terminated as it is created, scheduled, interrupted, or completed.",
+          "importantPoints": [
+            "A program is passive code; a process is an executing instance.",
+            "State transitions describe what the process is doing and what it is waiting for.",
+            "The process life cycle helps explain scheduling and resource allocation."
+          ],
+          "example": "A process running a command may leave the running state while waiting for file input, then return to the ready queue.",
+          "analogy": "A process is a job ticket moving through a workshop: queued, being worked on, waiting for a tool, and finished.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m2-pcb-context-switch",
+          "title": "Process Control Block and context switching",
+          "group": "Process management",
+          "explanation": "The Process Control Block (PCB) stores information the operating system needs to manage a process, such as its state, identifiers, scheduling information, and saved execution context. A context switch saves one process's state and restores another's so the CPU can change work safely.",
+          "importantPoints": [
+            "The PCB is the OS record for a process.",
+            "A context switch changes which process is executing on a CPU.",
+            "Switching enables sharing but consumes time that does not execute user work."
+          ],
+          "example": "When a time slice expires, the OS saves the running process's context in its PCB and loads the next process's context.",
+          "analogy": "A context switch is like bookmarking one book and opening another at its saved page.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m2-process-relations-calls",
+          "title": "Process relationships and control system calls",
+          "group": "Process management",
+          "explanation": "Processes may create child processes and coordinate with them. The course names process-control calls and concepts including fork, exec, wait, join, exit, and process listing with ps.",
+          "importantPoints": [
+            "fork creates a child process in UNIX-like systems.",
+            "exec replaces a process image with a different program.",
+            "wait lets a parent collect a child's completion status; exit ends a process."
+          ],
+          "example": "A shell commonly creates a child process and uses an exec-family call to run the requested command.",
+          "analogy": "A manager (parent) can delegate work (fork), assign a new task (exec), and wait for a completion report (wait).",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m2-schedulers",
+          "title": "Schedulers, queues, and process scheduling",
+          "group": "CPU scheduling",
+          "explanation": "Long-term, medium-term, and short-term schedulers make different admission and execution decisions. The short-term CPU scheduler selects a ready process to run, while context switching transfers control to it.",
+          "importantPoints": [
+            "The long-term scheduler controls which jobs enter the system.",
+            "The short-term scheduler chooses among ready processes for CPU time.",
+            "The medium-term scheduler can suspend and later resume processes."
+          ],
+          "example": "A ready queue may contain several processes, but only one is selected on a single CPU at a time.",
+          "analogy": "Schedulers are dispatchers working at different planning horizons: accepting jobs, pausing work, and selecting the next task.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m2-cpu-algorithms",
+          "title": "FCFS, SJF, Round Robin, Priority, and real-time scheduling",
+          "group": "CPU scheduling",
+          "explanation": "CPU scheduling algorithms decide which ready process runs next. The syllabus covers First Come First Serve (FCFS), Shortest Job First (SJF), Round Robin (RR), priority scheduling, and real-time scheduling, including preemptive and non-preemptive approaches.",
+          "importantPoints": [
+            "FCFS follows arrival order; SJF favors a short next CPU burst.",
+            "Round Robin assigns a time quantum and cycles through ready processes.",
+            "Priority and real-time approaches use urgency or deadlines; preemption may interrupt a running process."
+          ],
+          "example": "For Round Robin, each ready process receives at most one time quantum before returning to the queue if it is unfinished.",
+          "analogy": "A queue at a service desk can use arrival order, shortest task first, priority tickets, or brief turns for everyone.",
+          "animationKey": "query-filter"
+        },
+        {
+          "id": "os-m2-threads",
+          "title": "Threads and multithreading",
+          "group": "Threads and shell programming",
+          "explanation": "A thread is an execution path within a process. Threads in the same process can share memory and other resources while maintaining their own execution state; multithreading can improve responsiveness but introduces coordination and race-condition concerns.",
+          "importantPoints": [
+            "Threads share a process's address space and resources.",
+            "Each thread needs its own execution state, including a stack and register context.",
+            "Synchronization is required when threads access shared mutable data."
+          ],
+          "example": "A program may use one thread to read input while another processes data, with both coordinating through shared state.",
+          "analogy": "Threads are team members working in the same room: they share the workspace but each has an individual task and must coordinate over shared tools.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m2-shell-operators-loops",
+          "title": "Shell operators, arithmetic, and loops",
+          "group": "Threads and shell programming",
+          "explanation": "Advanced shell scripts use arithmetic, relational, and logical operators to calculate and compare values. for, while, and until loops repeat commands; break and continue adjust loop flow.",
+          "importantPoints": [
+            "The syllabus includes expr and shell arithmetic.",
+            "for, while, and until express different loop conditions.",
+            "break exits a loop; continue skips to its next iteration."
+          ],
+          "example": "A while loop can count from one through N, while a case statement can dispatch a menu choice.",
+          "analogy": "A loop is a repeated checklist; its condition decides whether to do another round, stop, or skip a step.",
+          "animationKey": "query-filter"
+        }
+      ],
+      "practicals": [
+        {
+          "number": 24,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program using fork() to print the parent and child process IDs."
+        },
+        {
+          "number": 25,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to demonstrate process creation using nested fork()."
+        },
+        {
+          "number": 26,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to display which process executes first (parent or child)."
+        },
+        {
+          "number": 27,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program where the parent process uses exec() to run the ls command."
+        },
+        {
+          "number": 28,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program that uses wait() to ensure the parent waits for the child to finish."
+        },
+        {
+          "number": 29,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to demonstrate a zombie process and an orphan process."
+        },
+        {
+          "number": 30,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display the current processes using ps and filter by a specific user."
+        },
+        {
+          "number": 31,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a file exists and whether it is readable, writable, and executable."
+        },
+        {
+          "number": 32,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to perform addition, subtraction, multiplication, and division of two numbers."
+        },
+        {
+          "number": 33,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to calculate the area of a circle."
+        },
+        {
+          "number": 34,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a number is even or odd."
+        },
+        {
+          "number": 35,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to calculate the square and cube of a number."
+        },
+        {
+          "number": 36,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a number is greater than, less than, or equal to another number."
+        },
+        {
+          "number": 37,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a user is eligible to vote."
+        },
+        {
+          "number": 38,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to compare two strings and display whether they are equal."
+        },
+        {
+          "number": 39,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a number lies between 1 and 100."
+        },
+        {
+          "number": 40,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a student has passed using logical conditions."
+        },
+        {
+          "number": 41,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a character is a vowel or consonant."
+        },
+        {
+          "number": 42,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to calculate salary with DA, HRA, and PF."
+        },
+        {
+          "number": 43,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to implement FCFS and SJF CPU scheduling algorithms and analyze CPU utilization and turnaround time."
+        },
+        {
+          "number": 44,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to find the sum of digits of a number."
+        },
+        {
+          "number": 45,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to convert Celsius temperature to Fahrenheit."
+        },
+        {
+          "number": 46,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to implement Round Robin scheduling with a time quantum."
+        },
+        {
+          "number": 47,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print numbers from 1 to 10 using a for loop."
+        },
+        {
+          "number": 48,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print the multiplication table of a number."
+        },
+        {
+          "number": 49,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print all .txt files in the current directory."
+        },
+        {
+          "number": 50,
+          "sourcePage": 5,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print the factorial of a number using a for loop."
+        },
+        {
+          "number": 51,
+          "sourcePage": 5,
+          "dialect": "c",
+          "prompt": "Write a program to implement Priority Scheduling and calculate waiting time and turnaround time."
+        },
+        {
+          "number": 52,
+          "sourcePage": 5,
+          "dialect": "text",
+          "prompt": "Solve the unsolved questions on FCFS, SJF, Round-robin, and Priority CPU scheduling algorithms in the reference book and analyze CPU utilization and turnaround time."
+        },
+        {
+          "number": 53,
+          "sourcePage": 6,
+          "dialect": "c",
+          "prompt": "Write a shell script to list all running processes along with their PID (Process ID) and PPID (Parent Process ID) and terminate a child process using kill()."
+        },
+        {
+          "number": 54,
+          "sourcePage": 6,
+          "dialect": "bash",
+          "prompt": "Write a shell script to check whether a given process is running."
+        },
+        {
+          "number": 55,
+          "sourcePage": 6,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print numbers from 1 to N using a while loop."
+        },
+        {
+          "number": 56,
+          "sourcePage": 6,
+          "dialect": "bash",
+          "prompt": "Write a shell script to reverse the digits of a number using a while loop."
+        },
+        {
+          "number": 57,
+          "sourcePage": 6,
+          "dialect": "bash",
+          "prompt": "Write a shell script to print numbers from 1 to 10 using an until loop."
+        },
+        {
+          "number": 58,
+          "sourcePage": 6,
+          "dialect": "bash",
+          "prompt": "Write a shell script that keeps taking input until the user enters 0."
+        },
+        {
+          "number": 59,
+          "sourcePage": 6,
+          "dialect": "c",
+          "prompt": "Write a shell script or program to create and run threads, each printing a message with its thread ID."
+        },
+        {
+          "number": 60,
+          "sourcePage": 6,
+          "dialect": "c",
+          "prompt": "Write a program to create two threads: one prints the Fibonacci series and one prints a multiplication table."
+        },
+        {
+          "number": 61,
+          "sourcePage": 6,
+          "dialect": "c",
+          "prompt": "Write a program using threads to calculate the factorial of a number."
+        },
+        {
+          "number": 62,
+          "sourcePage": 6,
+          "dialect": "c",
+          "prompt": "Write a program to demonstrate a race condition between two threads."
+        }
+      ],
+      "assessments": [
+        {
+          "title": "Shell Scripting Proficiency Check",
+          "marks": 20,
+          "description": "Write an advanced shell script using arithmetic, relational, and logical operators, expr, loops, user input, break/continue, and meaningful sample output."
+        },
+        {
+          "title": "Real-Time CPU Scheduling Visualization",
+          "marks": 10,
+          "description": "Use a CPU-scheduling simulator to test FCFS, SJF, Priority, and Round Robin; compare waiting time, turnaround time, and CPU utilization, then submit an individual report with screenshots and findings."
+        }
+      ]
+    },
+    {
+      "moduleNumber": 3,
+      "id": "os-module-3",
+      "title": "Memory Management",
+      "hours": 18,
+      "weightagePercent": 20,
+      "sourcePages": [7, 8],
+      "topics": [
+        {
+          "id": "os-m3-memory-goals",
+          "title": "Memory-management goals and address spaces",
+          "group": "Memory allocation and virtual memory",
+          "explanation": "Memory management tracks which parts of main memory are in use, assigns space to processes, and supports safe access. Programs use logical addresses that are translated to physical addresses in memory.",
+          "importantPoints": [
+            "The OS manages allocation, protection, and relocation of memory.",
+            "A logical address is generated from a program's point of view.",
+            "A physical address identifies a location in main memory."
+          ],
+          "example": "A process can use logical address 120 while hardware and the OS map it to a physical frame location.",
+          "analogy": "A logical address is a seat number on a ticket; address translation finds the actual seat in the venue.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m3-allocation-fragmentation",
+          "title": "Static, dynamic, contiguous allocation, and fragmentation",
+          "group": "Memory allocation and virtual memory",
+          "explanation": "Memory may be allocated statically or dynamically, and contiguous allocation places a process in one continuous region. Fixed and variable partitioning, swapping, compaction, and fragmentation describe trade-offs in how memory is organized and reused.",
+          "importantPoints": [
+            "Fixed partitions can waste space internally; variable partitions can leave external gaps.",
+            "Swapping moves processes between memory and secondary storage.",
+            "Compaction can combine free regions but requires moving allocated data."
+          ],
+          "example": "First Fit places a request in the first suitable free block, while Best Fit chooses the smallest suitable block.",
+          "analogy": "Memory blocks are parking spaces: partition size, empty gaps, and moving cars affect how well the lot is used.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m3-noncontiguous-memory",
+          "title": "Paging, segmentation, and virtual memory",
+          "group": "Memory allocation and virtual memory",
+          "explanation": "Paging divides virtual memory into pages and physical memory into frames; a page table maps between them. Segmentation organizes a process into logical regions, while virtual memory lets programs use an address space larger than the currently resident physical memory.",
+          "importantPoints": [
+            "Pages and frames are fixed-size units in paging.",
+            "Segmentation reflects logical units such as code, data, and stack.",
+            "Virtual memory allows non-resident pages to be brought into memory when needed."
+          ],
+          "example": "A page fault can cause the OS to load a requested page from storage into an available frame.",
+          "analogy": "Paging is like dividing a book into equal pages and storing them in any shelf slots; segmentation is like storing chapters as meaningful sections.",
+          "animationKey": "architecture-layers"
+        },
+        {
+          "id": "os-m3-page-replacement",
+          "title": "Demand paging, page replacement, and thrashing",
+          "group": "Memory allocation and virtual memory",
+          "explanation": "Demand paging loads a page when it is first needed. If no free frame is available, a page-replacement algorithm selects a resident page to evict; excessive paging activity can lead to thrashing and poor performance.",
+          "importantPoints": [
+            "FIFO replaces the page loaded earliest.",
+            "LRU uses recent-use history; Optimal replaces the page whose next use is farthest away and is mainly a benchmark.",
+            "A page fault is not itself an error; it is a request to make a missing page available."
+          ],
+          "example": "For a reference string and a fixed number of frames, trace the frame contents and count page faults under FIFO, LRU, and Optimal.",
+          "analogy": "Page replacement is choosing which book to remove from a small desk when a new one is needed.",
+          "animationKey": "query-filter"
+        },
+        {
+          "id": "os-m3-unix-filters",
+          "title": "UNIX filters and text-processing pipelines",
+          "group": "UNIX filters and shell utilities",
+          "explanation": "A filter reads input, transforms or selects it, and writes output. UNIX tools such as cut, paste, join, fold, sort, tr, uniq, head, tail, grep, sed, and awk can be combined into pipelines.",
+          "importantPoints": [
+            "A pipe passes one command's standard output to another command's standard input.",
+            "Simple filters select, combine, wrap, sort, or translate text.",
+            "grep, sed, and awk support pattern matching, substitutions, and field-oriented processing."
+          ],
+          "example": "sort names.txt | uniq -c can sort repeated lines and count the unique entries.",
+          "analogy": "A pipeline is an assembly line: each filter performs one transformation before passing the work onward.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m3-patterns-formatted-output",
+          "title": "Regular expressions, variables, and formatted output",
+          "group": "UNIX filters and shell utilities",
+          "explanation": "Shell variables store values for later use, while comparison operators and built-ins support decisions and reporting. Basic regular expressions, printf, grep, sed, and awk help match, transform, and format text.",
+          "importantPoints": [
+            "Quote variables when expanding values that may contain spaces.",
+            "printf provides controlled field widths and formatting.",
+            "Regular expressions express patterns; grep searches for matches and sed can replace matching text."
+          ],
+          "example": "A pipeline can extract fields with cut, filter rows with grep, and print a formatted summary with awk or printf.",
+          "analogy": "A regular expression is a search template, and formatted output is a label maker for the results.",
+          "animationKey": "query-filter"
+        }
+      ],
+      "practicals": [
+        {
+          "number": 63,
+          "sourcePage": 7,
+          "dialect": "c",
+          "prompt": "Write a program to demonstrate static memory allocation."
+        },
+        {
+          "number": 64,
+          "sourcePage": 7,
+          "dialect": "c",
+          "prompt": "Write a program to demonstrate dynamic memory allocation using malloc(), calloc(), realloc(), and free()."
+        },
+        {
+          "number": 65,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell command to extract specific columns from a text file using filter utilities."
+        },
+        {
+          "number": 66,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell command to fold long lines into shorter fixed widths."
+        },
+        {
+          "number": 67,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell command to sort a file in ascending and descending order."
+        },
+        {
+          "number": 68,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell command to translate lowercase characters to uppercase."
+        },
+        {
+          "number": 69,
+          "sourcePage": 7,
+          "dialect": "python",
+          "prompt": "Write a program to simulate First Fit, Best Fit, and Worst Fit memory-allocation methods."
+        },
+        {
+          "number": 70,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell script to find and print only unique words from a given text file."
+        },
+        {
+          "number": 71,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display only unique lines from a file, the first 10 lines of a file, and the last 10 lines of a file."
+        },
+        {
+          "number": 72,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a shell command to combine two filters using a pipe."
+        },
+        {
+          "number": 73,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a command using grep to search for a specific pattern in a file."
+        },
+        {
+          "number": 74,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write commands that use basic regular expressions to match specific strings."
+        },
+        {
+          "number": 75,
+          "sourcePage": 7,
+          "dialect": "bash",
+          "prompt": "Write a command using sed to replace all occurrences of a word in a file."
+        },
+        {
+          "number": 76,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a command using awk to print selected fields from a file."
+        },
+        {
+          "number": 77,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a script to format output using printf."
+        },
+        {
+          "number": 78,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a script that compares two numbers using comparison operators."
+        },
+        {
+          "number": 79,
+          "sourcePage": 8,
+          "dialect": "python",
+          "prompt": "Write a program to implement FIFO, LRU, and Optimal page-replacement algorithms."
+        },
+        {
+          "number": 80,
+          "sourcePage": 8,
+          "dialect": "text",
+          "prompt": "Solve the unsolved questions on FIFO, LRU, and Optimal page-replacement algorithms given in the reference book."
+        },
+        {
+          "number": 81,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a script that uses variables to store and display user input."
+        },
+        {
+          "number": 82,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a script that prints built-in shell variables such as HOME, USER, and PATH."
+        },
+        {
+          "number": 83,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a shell command to merge two files side by side."
+        },
+        {
+          "number": 84,
+          "sourcePage": 8,
+          "dialect": "bash",
+          "prompt": "Write a shell command to join two files based on a common field."
+        }
+      ],
+      "assessments": [
+        {
+          "title": "Filter Forge Shell Challenge",
+          "marks": 20,
+          "description": "Process a text file with UNIX filters including cut, sort, tr, uniq, grep, basic regular expressions, sed, and awk; apply at least two filters using a pipe, use variables/comparison operators/printf, and display well-formatted results."
+        },
+        {
+          "title": "Page Fault Adventure: FIFO, LRU and Optimal",
+          "marks": 10,
+          "description": "Simulate FIFO, LRU, and Optimal page replacement for a given reference string and frame count; show frame states, count page faults, compare algorithms, and submit tables and conclusions as a PDF."
+        }
+      ]
+    },
+    {
+      "moduleNumber": 4,
+      "id": "os-module-4",
+      "title": "Concurrency and Deadlock",
+      "hours": 18,
+      "weightagePercent": 20,
+      "sourcePages": [9, 10],
+      "topics": [
+        {
+          "id": "os-m4-concurrency-ipc",
+          "title": "Concurrency, communication, and critical sections",
+          "group": "Concurrency and synchronization",
+          "explanation": "Concurrent processes make progress during overlapping periods and may communicate or compete for shared resources. A critical section is code that accesses shared state and must be coordinated to avoid incorrect interleavings.",
+          "importantPoints": [
+            "Concurrency can arise through interleaving even on one CPU.",
+            "Race conditions occur when outcomes depend on timing or interleaving.",
+            "Mutual exclusion ensures at most one participant enters a protected critical section at a time."
+          ],
+          "example": "Two threads incrementing a shared counter without coordination can overwrite each other's updates.",
+          "analogy": "Concurrency is multiple cooks sharing a kitchen; the recipe needs rules for shared knives, burners, and ingredients.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m4-sync-mechanisms",
+          "title": "Semaphores, monitors, and message passing",
+          "group": "Concurrency and synchronization",
+          "explanation": "Synchronization mechanisms coordinate access and ordering. Semaphores use counters and operations, monitors combine shared data with controlled procedures, and message passing lets processes exchange information through send/receive operations.",
+          "importantPoints": [
+            "A binary semaphore can protect a critical section; counting semaphores represent multiple available resources.",
+            "A monitor encapsulates shared state and synchronization rules.",
+            "Message passing communicates without requiring all processes to share memory."
+          ],
+          "example": "A producer can send an item to a consumer through a bounded buffer, using synchronization to avoid reading an empty buffer or writing a full one.",
+          "analogy": "A semaphore is a token or permit, a monitor is a guarded room, and message passing is a handoff between teams.",
+          "animationKey": "constraints"
+        },
+        {
+          "id": "os-m4-deadlock",
+          "title": "Deadlock conditions, prevention, and avoidance",
+          "group": "Deadlock handling",
+          "explanation": "Deadlock is a state where a group of processes waits indefinitely for resources held by one another. The four necessary conditions are mutual exclusion, hold and wait, no preemption, and circular wait; prevention and avoidance aim to keep the system out of unsafe situations.",
+          "importantPoints": [
+            "All four Coffman conditions are needed for deadlock to be possible.",
+            "Prevention breaks at least one necessary condition.",
+            "Avoidance checks whether a resource grant keeps the system in a safe state."
+          ],
+          "example": "A global resource ordering can prevent circular wait if processes acquire resource types in that order.",
+          "analogy": "Deadlock is a traffic gridlock where each car blocks the next and no one can move.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m4-bankers",
+          "title": "Banker's algorithm, detection, recovery, and starvation",
+          "group": "Deadlock handling",
+          "explanation": "Banker's algorithm evaluates whether a request can be granted while leaving some safe completion order. Deadlock detection finds existing cycles or blocked resource states, and recovery can release resources or restart work; starvation is indefinite postponement without a deadlock cycle.",
+          "importantPoints": [
+            "Need = Maximum − Allocation for each process and resource type.",
+            "A state is safe when a sequence exists in which each process can obtain its remaining need and finish.",
+            "A request should not be granted if the resulting state is unsafe."
+          ],
+          "example": "Before granting a request, compare it with available resources, tentatively update the allocation, then search for a safe sequence.",
+          "analogy": "A bank grants a loan only if it can still complete a safe repayment schedule for all customers.",
+          "animationKey": "query-filter"
+        },
+        {
+          "id": "os-m4-classical-ipc",
+          "title": "Producer–consumer, readers–writers, and dining philosophers",
+          "group": "Inter-process communication",
+          "explanation": "Classical synchronization problems model common coordination patterns. Producer–consumer shares a bounded buffer, readers–writers coordinates shared reading and exclusive writing, and dining philosophers illustrates competition for multiple resources and possible deadlock or starvation.",
+          "importantPoints": [
+            "Solutions must protect shared state and maintain correct ordering.",
+            "Mutual exclusion alone may not guarantee fairness or progress.",
+            "A correct solution should explain its assumptions and how it handles deadlock and starvation."
+          ],
+          "example": "Use empty and full semaphore counts plus a mutex to coordinate producers and consumers around a finite buffer.",
+          "analogy": "These problems are reusable puzzles that expose hidden coordination issues in everyday shared-resource systems.",
+          "animationKey": "constraints"
+        },
+        {
+          "id": "os-m4-network-commands",
+          "title": "Network configuration and connectivity commands",
+          "group": "Network and process tools",
+          "explanation": "UNIX network tools inspect host configuration, address information, DNS records, routes, and connectivity. The course names ifconfig, hostname, ping, dig, and route.",
+          "importantPoints": [
+            "hostname identifies a system by its host name.",
+            "ping tests reachability using network echo requests when permitted.",
+            "dig queries DNS; route displays or manages routing information depending on system and permissions."
+          ],
+          "example": "Record the hostname, inspect available IP configuration, query a domain with dig, and test connectivity with ping.",
+          "analogy": "Network commands are diagnostic instruments: identify the machine, check a path, and ask the directory service for an address.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m4-process-tools",
+          "title": "Process monitoring, signals, jobs, and mounts",
+          "group": "Network and process tools",
+          "explanation": "Process commands inspect and control running work. ps and top show processes, kill sends a signal, jobs lists shell jobs, and bg/fg switch jobs between background and foreground; mount relates a file system to a directory tree.",
+          "importantPoints": [
+            "ps options change which processes and fields are displayed.",
+            "kill sends a signal to a process; it does not necessarily mean immediate termination.",
+            "Shell job control is different from global process listing."
+          ],
+          "example": "Use ps to locate a process, inspect its PID, then send an appropriate signal only when you have permission and understand the effect.",
+          "analogy": "Process tools are a control panel for viewing, pausing, resuming, and safely stopping work.",
+          "animationKey": "compare"
+        }
+      ],
+      "practicals": [
+        {
+          "number": 85,
+          "sourcePage": 9,
+          "dialect": "bash",
+          "prompt": "Write a shell script to create concurrent processes and display their process IDs."
+        },
+        {
+          "number": 86,
+          "sourcePage": 9,
+          "dialect": "bash",
+          "prompt": "Write a shell script to demonstrate inter-process communication by sending data through a pipe."
+        },
+        {
+          "number": 87,
+          "sourcePage": 9,
+          "dialect": "bash",
+          "prompt": "Write a shell script to implement mutual exclusion using a lock-file mechanism."
+        },
+        {
+          "number": 88,
+          "sourcePage": 9,
+          "dialect": "bash",
+          "prompt": "Write a shell script to demonstrate process synchronization similar to a semaphore using a temporary file."
+        },
+        {
+          "number": 89,
+          "sourcePage": 9,
+          "dialect": "bash",
+          "prompt": "Write a shell script to detect a possible deadlock situation by checking whether a process is waiting indefinitely."
+        },
+        {
+          "number": 90,
+          "sourcePage": 9,
+          "dialect": "python",
+          "prompt": "For processes P1, P2, and P3 and resource types A, B, and C, use this table (Max / Allocated): P1 Max (7,5,3), Allocated (0,1,0); P2 Max (3,2,2), Allocated (2,0,0); P3 Max (9,0,2), Allocated (3,0,2). Available resources are A=3, B=3, C=2. Determine whether the system is in a safe state using Banker's algorithm. If a new request from P2 for (1,0,2) arrives, check whether it can be safely allocated."
+        },
+        {
+          "number": 91,
+          "sourcePage": 10,
+          "dialect": "text",
+          "prompt": "Solve the unsolved questions on the Banker's Algorithm provided in the reference book."
+        },
+        {
+          "number": 92,
+          "sourcePage": 10,
+          "dialect": "python",
+          "prompt": "Write a shell script or program to simulate the Producer–Consumer problem using a file as a shared buffer."
+        },
+        {
+          "number": 93,
+          "sourcePage": 10,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display the system's IP address and hostname, and test network connectivity using ping."
+        },
+        {
+          "number": 94,
+          "sourcePage": 10,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display domain information and routing details using dig and route commands."
+        },
+        {
+          "number": 95,
+          "sourcePage": 10,
+          "dialect": "bash",
+          "prompt": "Use process commands top, ps with options -r, -x, -e, -A, -a, -f, -l, -n, -p, and -s, and mount to list processes in various formats and inspect file-system mounts."
+        },
+        {
+          "number": 96,
+          "sourcePage": 10,
+          "dialect": "bash",
+          "prompt": "Write a shell script to list processes using ps options (-e, -f, -x, -a) and allow the user to kill a selected process ID."
+        },
+        {
+          "number": 97,
+          "sourcePage": 10,
+          "dialect": "bash",
+          "prompt": "Write a shell script to start a background job, bring it to the foreground, and display job status using bg, fg, and jobs commands."
+        }
+      ],
+      "assessments": [
+        {
+          "title": "Network & Process Explorer Task",
+          "marks": 20,
+          "description": "Use network commands such as ifconfig, hostname, ping, dig, and route to inspect configuration, test connectivity, and retrieve DNS details. Explore process monitoring and management with top, ps, kill, bg, fg, jobs, and mount; record outputs and explain each command's purpose."
+        },
+        {
+          "title": "Concurrency & Synchronization Mini Task",
+          "marks": 10,
+          "description": "Implement one classical IPC problem using semaphores or message passing, demonstrate correct synchronization, explain critical sections and deadlock conditions, and submit an individual report with outputs or screenshots."
+        }
+      ]
+    },
+    {
+      "moduleNumber": 5,
+      "id": "os-module-5",
+      "title": "File Management, I/O Management, Disk Management, Security and Protection",
+      "hours": 18,
+      "weightagePercent": 20,
+      "sourcePages": [11, 12],
+      "topics": [
+        {
+          "id": "os-m5-file-systems",
+          "title": "Files, file systems, naming, and access",
+          "group": "File and I/O management",
+          "explanation": "A file system organizes named files and directories and defines how programs access stored data. File structure, naming, file type, and access method are foundational concepts for reliable storage and retrieval.",
+          "importantPoints": [
+            "A file is a named collection of data managed through an OS interface.",
+            "Directories organize names and paths.",
+            "Access permissions control which operations users may perform."
+          ],
+          "example": "Use file and ls -l to inspect a file's type, size, owner, and permission bits.",
+          "analogy": "A file system is an indexed library: names and directories help locate items, and access rules decide who may use them.",
+          "animationKey": "file-tree"
+        },
+        {
+          "id": "os-m5-io-buffering",
+          "title": "I/O organization and buffering",
+          "group": "File and I/O management",
+          "explanation": "I/O management coordinates data transfer between processes and devices. Buffering temporarily holds data so producers and consumers can work at different rates and so small operations can be combined efficiently.",
+          "importantPoints": [
+            "A buffer is temporary storage used during I/O.",
+            "The OS coordinates device operations and completion status.",
+            "Buffer size and transfer patterns can affect throughput and responsiveness."
+          ],
+          "example": "A line-by-line file reader can pause briefly between reads to illustrate how buffering separates the producer from the consumer.",
+          "analogy": "A loading dock buffers packages between a fast packing line and a slower delivery truck.",
+          "animationKey": "data-flow"
+        },
+        {
+          "id": "os-m5-disk-scheduling",
+          "title": "Disk scheduling: FCFS, SSTF, SCAN, and C-SCAN",
+          "group": "Disk and storage management",
+          "explanation": "Disk scheduling orders pending requests to reduce head movement and improve service. The syllabus covers FCFS, Shortest Seek Time First (SSTF), SCAN, and C-SCAN; each makes a different fairness and seek-distance trade-off.",
+          "importantPoints": [
+            "FCFS serves requests in arrival order.",
+            "SSTF selects a nearby request and may starve distant requests.",
+            "SCAN sweeps in a direction; C-SCAN services in one direction before returning to the beginning."
+          ],
+          "example": "For a request queue and initial head position, calculate the service order and total head movement under each algorithm.",
+          "analogy": "Disk scheduling is like planning an elevator route for floors requested by passengers.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m5-ssd",
+          "title": "SSD structure and features",
+          "group": "Disk and storage management",
+          "explanation": "Solid-state drives store data in flash memory and have different performance and management characteristics from rotating disks. The syllabus introduces SSD structure, features, and disk-management implications.",
+          "importantPoints": [
+            "SSDs have no rotating platter or mechanical seek arm.",
+            "Flash storage has erase and write constraints handled by device-management techniques.",
+            "Storage choice affects performance, endurance, and system design."
+          ],
+          "example": "Compare access patterns on an SSD and a magnetic disk while noting why mechanical seek distance matters more for the latter.",
+          "analogy": "A rotating disk is like a record player that must move to a track; an SSD is closer to an electronic index with no moving arm.",
+          "animationKey": "compare"
+        },
+        {
+          "id": "os-m5-security-threats",
+          "title": "Security environment, threats, and design principles",
+          "group": "Security and protection",
+          "explanation": "Operating-system security protects users, processes, and data from misuse and attack. Threat models identify assets, possible attackers, and attack paths so defenses can be designed around realistic risks.",
+          "importantPoints": [
+            "Security begins by identifying assets and the threats that could affect them.",
+            "Authentication verifies identity; access control restricts actions.",
+            "Intrusion detection looks for signs of unauthorized or suspicious activity."
+          ],
+          "example": "A case study can examine an exposed file, identify who should read or modify it, then apply least-privilege permissions and verify the result.",
+          "analogy": "Security is layered protection for a building: identify valuable rooms, check identity, limit keys, and watch for suspicious entry.",
+          "animationKey": "security"
+        },
+        {
+          "id": "os-m5-access-control",
+          "title": "Authentication, ACLs, protection domains, and malware defense",
+          "group": "Security and protection",
+          "explanation": "Protection mechanisms define what subjects may do to system objects. Access Control Lists (ACLs), protection domains, user-authentication techniques, and malware defenses help enforce least privilege and isolate sensitive resources.",
+          "importantPoints": [
+            "An ACL lists permitted operations for users or groups on an object.",
+            "A protection domain describes the resources and actions available to a process or user.",
+            "Authentication and authorization are related but distinct controls."
+          ],
+          "example": "Use getfacl to inspect an ACL, make a controlled permission change in a test directory, and verify the effective access.",
+          "analogy": "An ACL is a guest list for a room; a protection domain is the set of rooms and tools a visitor's badge can access.",
+          "animationKey": "security"
+        },
+        {
+          "id": "os-m5-shell-file-tools",
+          "title": "Shell arrays, arguments, file search, and compression",
+          "group": "Shell utilities and automation",
+          "explanation": "Shell scripts can accept command-line arguments, store collections in arrays, search files, and compress or archive data. Tools such as file, find, locate, whereis, which, gzip, gunzip, zip, unzip, and tar support everyday administration tasks.",
+          "importantPoints": [
+            "Command-line arguments are available through positional parameters such as $1 and $@.",
+            "Arrays support indexed collections in shells such as Bash.",
+            "Compression reduces file size; archiving groups files, and the two tasks can be combined."
+          ],
+          "example": "A script can accept a directory path, find matching files, place their names in an array, then archive selected files with tar.",
+          "analogy": "Arguments are a task's inputs, arrays are labeled baskets, and archives are packed boxes for transport or storage.",
+          "animationKey": "file-tree"
+        }
+      ],
+      "practicals": [
+        {
+          "number": 98,
+          "sourcePage": 11,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display details of all files in a directory, including file type and size."
+        },
+        {
+          "number": 99,
+          "sourcePage": 11,
+          "dialect": "bash",
+          "prompt": "Write a shell script that reads a filename from the user and displays its file-structure information (type, permissions, and size)."
+        },
+        {
+          "number": 100,
+          "sourcePage": 11,
+          "dialect": "bash",
+          "prompt": "Write a shell script that allows the user to enter a filename and checks its access permissions (read, write, execute)."
+        },
+        {
+          "number": 101,
+          "sourcePage": 11,
+          "dialect": "bash",
+          "prompt": "Write a shell script to simulate simple I/O buffering by reading a file line by line with delays."
+        },
+        {
+          "number": 102,
+          "sourcePage": 11,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display all disks, partitions, and their usage information."
+        },
+        {
+          "number": 103,
+          "sourcePage": 11,
+          "dialect": "python",
+          "prompt": "Write a shell script or program to simulate FCFS disk scheduling by taking a list of cylinder requests and printing the seek order."
+        },
+        {
+          "number": 104,
+          "sourcePage": 11,
+          "dialect": "python",
+          "prompt": "Write a shell script to simulate SSTF disk scheduling for a given set of disk requests."
+        },
+        {
+          "number": 105,
+          "sourcePage": 11,
+          "dialect": "python",
+          "prompt": "Solve the unsolved questions on disk scheduling algorithms (FCFS, SSTF, SCAN, C-SCAN) given in the reference book."
+        },
+        {
+          "number": 106,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display user authentication information such as currently logged-in users and failed login attempts."
+        },
+        {
+          "number": 107,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script to display access-control information of files using ls and getfacl commands."
+        },
+        {
+          "number": 108,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script to accept command-line arguments and display the number of arguments and their values."
+        },
+        {
+          "number": 109,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script using arrays to insert, delete, search, and replace an element."
+        },
+        {
+          "number": 110,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script to search for files using file, find, locate, whereis, and which commands and display their locations."
+        },
+        {
+          "number": 111,
+          "sourcePage": 12,
+          "dialect": "bash",
+          "prompt": "Write a shell script to compress and decompress files using gzip, gunzip, zip, unzip, and tar based on user choice."
+        }
+      ],
+      "assessments": [
+        {
+          "title": "Array Operations & File Utility Lab",
+          "marks": 20,
+          "description": "Write a shell script using command-line arguments and arrays to perform insert, delete, search, replace, and display operations; use file-handling commands and demonstrate compression and decompression with sample output."
+        },
+        {
+          "title": "Linux Security Case Study",
+          "marks": 10,
+          "description": "Choose a security scenario such as system hardening, unauthorized-access mitigation, or kernel/process security analysis. Run appropriate diagnostic and corrective commands, document screenshots, and submit a structured individual .docx report."
+        }
+      ]
+    }
+  ]
+}

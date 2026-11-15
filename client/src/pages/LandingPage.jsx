@@ -13,21 +13,37 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
+import { OS_COURSE_CODE } from "../services/courseSelection.js";
 import PortalLogo from "../components/PortalLogo.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 import HeroAnimation from "../components/HeroAnimation.jsx";
 import Loading from "../components/Loading.jsx";
 
 export default function LandingPage() {
+  const { courseCode, currentCourse } = useCourse();
+  const isOperatingSystems = courseCode === OS_COURSE_CODE;
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    let active = true;
+    setCourse(null);
+    setLoading(true);
     api
       .get("/content/syllabus")
-      .then(setCourse)
-      .catch(() => setCourse(null))
-      .finally(() => setLoading(false));
-  }, []);
+      .then((data) => {
+        if (active) setCourse(data);
+      })
+      .catch(() => {
+        if (active) setCourse(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [courseCode]);
   const modules = course?.modules || [];
   const practicalCount = modules.reduce(
     (sum, module) => sum + (module.practicals?.length || 0),
@@ -37,7 +53,7 @@ export default function LandingPage() {
     <div className="landing-page">
       <header className="landing-nav">
         <Link to="/" className="brand-link">
-          <PortalLogo />
+          <PortalLogo courseName={currentCourse?.shortName || "DBMS"} />
         </Link>
         <nav>
           <a href="#course-map">Course map</a>
@@ -54,21 +70,33 @@ export default function LandingPage() {
         <div className="hero-copy">
           <div className="hero-kicker">
             <span className="kicker-dot" />
-            GMIU · SEMESTER 3 · BETICE13305
+            GMIU · SEMESTER{" "}
+            {currentCourse?.semester || course?.course?.semester || "—"} ·{" "}
+            {courseCode}
           </div>
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
           >
-            Make databases
-            <br />
-            <em>make sense.</em>
+            {isOperatingSystems ? (
+              <>
+                Understand systems
+                <br />
+                <em>from the ground up.</em>
+              </>
+            ) : (
+              <>
+                Make databases
+                <br />
+                <em>make sense.</em>
+              </>
+            )}
           </motion.h1>
           <p className="hero-description">
-            A guided DBMS course space for learning Oracle SQL and PL/SQL,
-            practising official lab tasks, and making steady progress—one
-            concept at a time.
+            {isOperatingSystems
+              ? "A guided Operating Systems course space for learning architecture, processes, memory, concurrency, security, and shell fundamentals—with practical work reviewed safely."
+              : "A guided DBMS course space for learning Oracle SQL and PL/SQL, practising official lab tasks, and making steady progress—one concept at a time."}
           </p>
           <div className="hero-actions">
             <Link className="button button-light" to="/register">
@@ -107,8 +135,16 @@ export default function LandingPage() {
               <CheckCircle2 size={18} />
             </span>
             <span>
-              <b>Oracle-first lab</b>
-              <small>no dialect substitutions</small>
+              <b>
+                {isOperatingSystems
+                  ? "Instructor-reviewed work"
+                  : "Oracle-first lab"}
+              </b>
+              <small>
+                {isOperatingSystems
+                  ? "submissions are never executed"
+                  : "no dialect substitutions"}
+              </small>
             </span>
           </div>
           <div className="hero-spark hero-spark-a">✳</div>
@@ -124,7 +160,9 @@ export default function LandingPage() {
           <span>official modules</span>
         </div>
         <div>
-          <strong>{practicalCount || "52"}</strong>
+          <strong>
+            {practicalCount || (isOperatingSystems ? "111" : "52")}
+          </strong>
           <span>official practicals</span>
         </div>
         <div>
@@ -132,15 +170,19 @@ export default function LandingPage() {
           <span>course hours</span>
         </div>
         <div>
-          <strong>Oracle</strong>
-          <span>primary SQL dialect</span>
+          <strong>{isOperatingSystems ? "Bash + Python" : "Oracle"}</strong>
+          <span>
+            {isOperatingSystems ? "practice languages" : "primary SQL dialect"}
+          </span>
         </div>
       </section>
       <section className="landing-content" id="course-map">
         <div className="landing-section-head">
           <div>
             <span className="eyebrow">THE LEARNING PATH</span>
-            <h2>One course. Five clear steps.</h2>
+            <h2>
+              {currentCourse?.shortName || "DBMS"} course. Five clear modules.
+            </h2>
             <p>
               Module titles, topic ordering and practical counts come directly
               from the uploaded university syllabus.
@@ -229,11 +271,14 @@ export default function LandingPage() {
           <Sparkles size={22} />
         </div>
         <div>
-          <span className="eyebrow">YOUR DBMS WORKSPACE</span>
+          <span className="eyebrow">
+            YOUR {currentCourse?.shortName || "DBMS"} WORKSPACE
+          </span>
           <h2>Start with the syllabus. Build real understanding.</h2>
           <p>
-            Practice questions are labeled as learning checks; official
-            practicals remain exactly as listed in the course file.
+            {isOperatingSystems
+              ? "Practice Arenas supplement the 111 official practicals; all task submissions are stored for instructor review and never executed."
+              : "Practice questions are labeled as learning checks; official practicals remain exactly as listed in the course file."}
           </p>
         </div>
         <Link to="/register" className="button button-light">
@@ -241,8 +286,8 @@ export default function LandingPage() {
         </Link>
       </section>
       <footer className="landing-footer">
-        <PortalLogo />
-        <span>Course BETICE13305 · Gyanmanjari Institute of Technology</span>
+        <PortalLogo courseName={currentCourse?.shortName || "DBMS"} />
+        <span>Course {courseCode} · Gyanmanjari Institute of Technology</span>
         <span>Learning content is sourced from the official course file.</span>
         <span>Designed &amp; developed by Yug Lakhani</span>
       </footer>

@@ -1,9 +1,10 @@
-const User = require("../models/User");
 const Module = require("../models/Module");
 const Practical = require("../models/Practical");
 const PracticalAttempt = require("../models/PracticalAttempt");
 const ModuleManualProgress = require("../models/ModuleManualProgress");
-const { COURSE_CODE } = require("../config/constants");
+const User = require("../models/User");
+const { COURSE_CODE, normalizeCourseCode } = require("../config/constants");
+const { courseFilter } = require("./courseScope");
 
 function pairKey(studentId, moduleId) {
   return `${String(studentId)}:${String(moduleId)}`;
@@ -15,33 +16,37 @@ function deriveModuleManualStatus(totalPracticals, completedPracticals) {
     : "pending";
 }
 
-/**
- * Reconcile each selected student's per-module manual status with approved official
- * practicals. Email queueing is opt-in and used only by a new practical approval, so
- * routine logins, exports, and the rollout do not send catch-up emails.
- */
+function mapValue(value, key) {
+  if (value instanceof Map) return value.get(key);
+  return value?.[key];
+}
+
 async function syncModuleManualProgressForStudents(
   studentIds,
-  { moduleId, queueCompletionEmail = false } = {},
+  { moduleId, courseCode = COURSE_CODE, queueCompletionEmail = false } = {},
 ) {
+  const normalizedCourseCode = normalizeCourseCode(courseCode) || COURSE_CODE;
   const studentsById = new Map(
     (studentIds || []).filter(Boolean).map((id) => [String(id), id]),
   );
   const uniqueStudentIds = [...studentsById.values()];
-
-  const moduleFilter = { courseCode: COURSE_CODE, isActive: true };
+  const moduleFilter = { isActive: true };
   if (moduleId) moduleFilter._id = moduleId;
-  const modules = await Module.find(moduleFilter)
-    .select("_id moduleNumber title slug")
+  const modules = await Module.find(
+    courseFilter(normalizedCourseCode, moduleFilter),
+  )
+    .select("_id moduleNumber title slug courseCode")
     .sort({ moduleNumber: 1 })
     .lean();
   if (!uniqueStudentIds.length || !modules.length) return { modules, rows: [] };
 
   const moduleIds = modules.map((module) => module._id);
-  const practicals = await Practical.find({
-    moduleId: { $in: moduleIds },
-    isActive: true,
-  })
+  const practicals = await Practical.find(
+    courseFilter(normalizedCourseCode, {
+      moduleId: { $in: moduleIds },
+      isActive: true,
+    }),
+  )
     .select("_id moduleId")
     .lean();
   const practicalModuleById = new Map();
@@ -59,18 +64,15 @@ async function syncModuleManualProgressForStudents(
   }
 
   const practicalIds = practicals.map((practical) => practical._id);
-  const [approvedAttempts, users, existingRows] = await Promise.all([
+  const [approvedAttempts, existingRows, users] = await Promise.all([
     practicalIds.length
       ? PracticalAttempt.aggregate([
           {
-            $match: {
+            $match: courseFilter(normalizedCourseCode, {
               studentId: { $in: uniqueStudentIds },
               practicalId: { $in: practicalIds },
-              $or: [
-                { completedAt: { $ne: null } },
-                { reviewStatus: "approved" },
-              ],
-            },
+              reviewStatus: "approved",
+            }),
           },
           {
             $group: {
@@ -79,35 +81,58 @@ async function syncModuleManualProgressForStudents(
           },
         ])
       : [],
-    User.find({ _id: { $in: uniqueStudentIds }, role: "student" })
-      .select("+pointAwardKeys")
-      .lean(),
-    ModuleManualProgress.find({
-      studentId: { $in: uniqueStudentIds },
-      moduleId: { $in: moduleIds },
-    })
+    ModuleManualProgress.find(
+      courseFilter(normalizedCourseCode, {
+        studentId: { $in: uniqueStudentIds },
+        moduleId: { $in: moduleIds },
+      }),
+    )
       .select(
         "studentId moduleId moduleManualStatus completedAt completionEmailStatus",
       )
       .lean(),
+    User.find({ _id: { $in: uniqueStudentIds }, role: "student" })
+      .select("+pointAwardKeys +pointAwardKeysByCourse")
+      .lean(),
   ]);
 
   const completedByStudentModule = new Map();
-  const addCompletedPractical = (studentId, practicalId) => {
+  const adminApprovedByStudentModule = new Map();
+  const addCompletedPractical = (
+    studentId,
+    practicalId,
+    target = completedByStudentModule,
+  ) => {
     const moduleIdForPractical = practicalModuleById.get(String(practicalId));
     if (!moduleIdForPractical) return;
     const key = pairKey(studentId, moduleIdForPractical);
-    if (!completedByStudentModule.has(key))
-      completedByStudentModule.set(key, new Set());
-    completedByStudentModule.get(key).add(String(practicalId));
+    if (!target.has(key)) target.set(key, new Set());
+    target.get(key).add(String(practicalId));
   };
   for (const row of approvedAttempts) {
     addCompletedPractical(row._id.studentId, row._id.practicalId);
+    addCompletedPractical(
+      row._id.studentId,
+      row._id.practicalId,
+      adminApprovedByStudentModule,
+    );
   }
-  for (const user of users) {
-    for (const awardKey of user.pointAwardKeys || []) {
+  // Keep legacy completion state visible in reports. The email worker separately
+  // verifies current admin-approved rows before it sends any module notification.
+  const awardKeysByStudent = new Map(
+    users.map((user) => [
+      String(user._id),
+      normalizedCourseCode === COURSE_CODE
+        ? Array.isArray(user.pointAwardKeys)
+          ? user.pointAwardKeys
+          : []
+        : mapValue(user.pointAwardKeysByCourse, normalizedCourseCode) || [],
+    ]),
+  );
+  for (const [studentKey, awardKeys] of awardKeysByStudent) {
+    for (const awardKey of awardKeys) {
       if (typeof awardKey === "string" && awardKey.startsWith("practical:")) {
-        addCompletedPractical(user._id, awardKey.slice("practical:".length));
+        addCompletedPractical(studentKey, awardKey.slice("practical:".length));
       }
     }
   }
@@ -134,29 +159,38 @@ async function syncModuleManualProgressForStudents(
         moduleManualStatus === "completed"
           ? existing?.completedAt || calculatedAt
           : null;
+      const adminApprovedCount =
+        adminApprovedByStudentModule.get(studentModuleKey)?.size || 0;
+      const everyPracticalAdminApproved =
+        totalPracticals > 0 && adminApprovedCount >= totalPracticals;
       const completionEmailQueued = Boolean(
         queueCompletionEmail &&
-        moduleManualStatus === "completed" &&
+        everyPracticalAdminApproved &&
         existing?.moduleManualStatus !== "completed" &&
+        !existing?.completionEmailQueuedAt &&
         !existing?.completionEmailStatus,
       );
       const setFields = {
+        courseCode: normalizedCourseCode,
         moduleManualStatus,
         completedPracticals,
         totalPracticals,
         completedAt,
       };
       if (completionEmailQueued) {
-        setFields.completionEmailStatus = "pending";
-        setFields.completionEmailQueuedAt = calculatedAt;
-        setFields.completionEmailAttempts = 0;
-        setFields.completionEmailLastAttemptAt = null;
-        setFields.completionEmailNextAttemptAt = null;
-        setFields.completionEmailSentAt = null;
-        setFields.completionEmailLastError = null;
+        Object.assign(setFields, {
+          completionEmailStatus: "pending",
+          completionEmailQueuedAt: calculatedAt,
+          completionEmailAttempts: 0,
+          completionEmailLastAttemptAt: null,
+          completionEmailNextAttemptAt: null,
+          completionEmailSentAt: null,
+          completionEmailLastError: null,
+        });
       }
       rows.push({
         _id: studentModuleKey,
+        courseCode: normalizedCourseCode,
         studentId,
         moduleId: module._id,
         moduleNumber: module.moduleNumber,
@@ -170,6 +204,7 @@ async function syncModuleManualProgressForStudents(
       });
       operations.push({
         updateOne: {
+          // Keep legacy DBMS _ids stable; the migration backfills courseCode before the new unique index is installed.
           filter: { _id: studentModuleKey },
           update: {
             $set: setFields,
@@ -184,7 +219,6 @@ async function syncModuleManualProgressForStudents(
       });
     }
   }
-
   if (operations.length)
     await ModuleManualProgress.bulkWrite(operations, { ordered: false });
   return { modules, rows };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Award, Crown, Filter, Medal, Sparkles, Trophy } from "lucide-react";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
@@ -18,6 +19,7 @@ function initials(name) {
 }
 
 export default function HallOfFamePage() {
+  const { courseCode, currentCourse } = useCourse();
   const [semester, setSemester] = useState("all");
   const [classSection, setClassSection] = useState("all");
   const [data, setData] = useState(null);
@@ -30,6 +32,7 @@ export default function HallOfFamePage() {
     if (semester !== "all") params.set("semester", semester);
     if (classSection !== "all") params.set("classSection", classSection);
     setLoading(true);
+    setData(null);
     setError("");
     const query = params.toString();
     api
@@ -46,7 +49,7 @@ export default function HallOfFamePage() {
     return () => {
       current = false;
     };
-  }, [semester, classSection]);
+  }, [courseCode, semester, classSection]);
 
   if (!data && loading) return <Loading />;
 
@@ -63,7 +66,7 @@ export default function HallOfFamePage() {
       <SectionHeading
         eyebrow="STUDENT LEADERBOARD · TOP 10"
         title="Hall of Fame"
-        description="Celebrate the students leading the DBMS course by points earned."
+        description={`Celebrate the students leading ${currentCourse?.portalLabel || "this course"} by points earned.`}
         action={
           <span className="soft-badge">
             <Trophy size={15} /> Top 10
@@ -100,6 +103,7 @@ export default function HallOfFamePage() {
             >
               <option value="all">All semesters</option>
               <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
               <option value="5">Semester 5</option>
             </select>
           </label>
@@ -147,7 +151,10 @@ export default function HallOfFamePage() {
         ) : (
           <ol className="hall-list">
             {data.students.map((student) => {
-              const earnedBadges = getEarnedPointBadges(student.totalPoints);
+              const earnedBadges = getEarnedPointBadges(
+                student.totalPoints,
+                currentCourse?.portalLabel,
+              );
               return (
                 <li
                   className={`hall-row ${student.rank <= 3 ? `hall-rank-top-${student.rank}` : ""}`}
@@ -177,7 +184,9 @@ export default function HallOfFamePage() {
                       `#${student.rank}`
                     )}
                   </span>
-                  <span className="hall-avatar-frame">
+                  <span
+                    className={`hall-avatar-frame ${earnedBadges.length ? "has-badge-pins" : ""}`}
+                  >
                     {student.rank >= 1 && student.rank <= 3 && (
                       <span className="hall-avatar-sparks" aria-hidden="true">
                         <span className="hall-avatar-spark hall-avatar-spark-1" />

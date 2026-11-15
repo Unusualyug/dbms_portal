@@ -10,6 +10,7 @@ const assessmentSubjectSchema = new mongoose.Schema(
 
 const examAssessmentSchema = new mongoose.Schema(
   {
+    courseCode: { type: String, required: true, trim: true, index: true },
     assessmentType: {
       type: String,
       enum: ["session1", "session2", "ala"],
@@ -18,7 +19,7 @@ const examAssessmentSchema = new mongoose.Schema(
     },
     title: { type: String, required: true, trim: true, maxlength: 100 },
     academicYear: { type: String, required: true, trim: true, maxlength: 9 },
-    semester: { type: Number, enum: [3, 5], required: true, index: true },
+    semester: { type: Number, enum: [3, 4, 5], required: true, index: true },
     classSection: {
       type: String,
       enum: ["X1", "X2", "Y1", "Y2"],
@@ -52,6 +53,7 @@ const examAssessmentSchema = new mongoose.Schema(
 
 examAssessmentSchema.index(
   {
+    courseCode: 1,
     assessmentType: 1,
     title: 1,
     academicYear: 1,
@@ -61,6 +63,7 @@ examAssessmentSchema.index(
   { unique: true, name: "unique_exam_assessment_per_cohort" },
 );
 examAssessmentSchema.index({
+  courseCode: 1,
   semester: 1,
   classSection: 1,
   status: 1,

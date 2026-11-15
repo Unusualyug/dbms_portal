@@ -11,7 +11,8 @@ const contentRoutes = require("./routes/contentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
-const { COURSE_CONTENT } = require("./config/constants");
+const { COURSE_CONTENT, COURSE_CODES } = require("./config/constants");
+const { attachCourseContext } = require("./middleware/courseContext");
 
 function createApp() {
   const app = express();
@@ -63,6 +64,7 @@ function createApp() {
     legacyHeaders: false,
   });
   app.use("/api", apiLimiter);
+  app.use("/api", attachCourseContext);
   app.use("/api/auth", authLimiter);
   app.get("/api/health", (req, res) =>
     res.json({
@@ -72,6 +74,7 @@ function createApp() {
           ? "connected"
           : "not-connected",
       courseCode: COURSE_CONTENT.course.courseCode,
+      supportedCourseCodes: COURSE_CODES,
     }),
   );
   app.use("/api/auth", authRoutes);

@@ -10,12 +10,13 @@ import {
   Send,
 } from "lucide-react";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
 import { formatDate } from "../utils/format.js";
 import Notice from "./Notice.jsx";
 
 function emailStatusCopy(status) {
   if (status === "sent")
-    return "The SMTP server accepted an email for your saved account address. Inbox delivery is not independently verified.";
+    return "Gmail SMTP accepted an email for your saved account address. Inbox delivery is not independently verified.";
   if (status === "failed")
     return "The reply is available here, but email delivery has not been confirmed.";
   if (status === "sending")
@@ -24,35 +25,58 @@ function emailStatusCopy(status) {
 }
 
 export default function StudentSupportSection() {
+  const { courseCode } = useCourse();
+  const currentCourseCodeRef = useRef(courseCode);
+  currentCourseCodeRef.current = courseCode;
+  const loadedCourseCodeRef = useRef("");
+  const requestSequenceRef = useRef(0);
   const [category, setCategory] = useState("question");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const hasLoadedOnce = useRef(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
   const loadRequests = useCallback(async () => {
-    if (!hasLoadedOnce.current) setLoading(true);
+    const requestedCourseCode = courseCode;
+    const requestSequence = ++requestSequenceRef.current;
+    if (loadedCourseCodeRef.current !== requestedCourseCode) {
+      setRequests([]);
+      setLoading(true);
+    }
     setError("");
     try {
       const result = await api.get("/student/support");
-      setRequests(result.messages || []);
+      if (
+        requestSequence === requestSequenceRef.current &&
+        currentCourseCodeRef.current === requestedCourseCode
+      ) {
+        setRequests(result.messages || []);
+        loadedCourseCodeRef.current = requestedCourseCode;
+      }
     } catch (requestError) {
-      setError(requestError.message || "Could not load your support requests.");
+      if (
+        requestSequence === requestSequenceRef.current &&
+        currentCourseCodeRef.current === requestedCourseCode
+      ) {
+        setError(
+          requestError.message || "Could not load your support requests.",
+        );
+      }
     } finally {
-      hasLoadedOnce.current = true;
-      setLoading(false);
+      if (requestSequence === requestSequenceRef.current) setLoading(false);
     }
-  }, []);
+  }, [courseCode]);
 
   useEffect(() => {
     loadRequests();
   }, [loadRequests, refreshKey]);
-  const shouldPollStatus = requests.some(
+  const currentRequests =
+    loadedCourseCodeRef.current === courseCode ? requests : [];
+  const shouldPollStatus = currentRequests.some(
     (request) =>
       request.status === "replied" &&
       ["pending", "sending"].includes(request.replyEmailStatus),
@@ -178,9 +202,9 @@ export default function StudentSupportSection() {
             <div className="support-thread-empty" role="status">
               Loading your requests…
             </div>
-          ) : requests.length ? (
+          ) : currentRequests.length ? (
             <div className="student-support-request-list">
-              {requests.map((request) => (
+              {currentRequests.map((request) => (
                 <article className="student-support-request" key={request.id}>
                   <div className="support-request-topline">
                     <span

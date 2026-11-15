@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   CircleAlert,
@@ -12,6 +12,8 @@ import {
   UnlockKeyhole,
 } from "lucide-react";
 import { api } from "../services/api.js";
+import { useCourse } from "../context/CourseContext.jsx";
+import { OS_COURSE_CODE } from "../services/courseSelection.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import Loading from "../components/Loading.jsx";
 import Notice from "../components/Notice.jsx";
@@ -46,19 +48,29 @@ function formatNumber(value) {
     : number.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-function countLocalMissing(detail) {
-  if (!detail) return 0;
-  return (detail.students || []).reduce(
-    (count, student) =>
-      count +
-      (student.marks || []).filter(
-        (mark) =>
-          mark.marksObtained === "" ||
-          mark.marksObtained === null ||
-          mark.marksObtained === undefined,
-      ).length,
-    0,
+function studentMarksComplete(student) {
+  return (
+    (student?.marks || []).length > 0 &&
+    student.marks.every(
+      (mark) =>
+        mark.marksObtained !== "" &&
+        mark.marksObtained !== null &&
+        mark.marksObtained !== undefined,
+    )
   );
+}
+
+function countReadyToPublish(detail) {
+  if (!detail) return 0;
+  return (detail.students || []).filter(
+    (student) => !student.publishedAt && studentMarksComplete(student),
+  ).length;
+}
+
+function countPublished(detail) {
+  return (detail?.students || []).filter((student) =>
+    Boolean(student.publishedAt),
+  ).length;
 }
 
 function SubjectEditor({ subjects, onChange, disabled = false }) {
@@ -138,6 +150,11 @@ function SubjectEditor({ subjects, onChange, disabled = false }) {
 }
 
 export default function AdminExamResultPage() {
+  const { courseCode, currentCourse } = useCourse();
+  const currentCourseCodeRef = useRef(courseCode);
+  currentCourseCodeRef.current = courseCode;
+  const listRequestSequenceRef = useRef(0);
+  const semesterOptions = courseCode === OS_COURSE_CODE ? [4] : [3, 5];
   const [assessments, setAssessments] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [detail, setDetail] = useState(null);
@@ -145,7 +162,7 @@ export default function AdminExamResultPage() {
     assessmentType: "session1",
     title: DEFAULT_TITLES.session1,
     academicYear: currentAcademicYear(),
-    semester: "3",
+    semester: String(currentCourse?.semester || 3),
     classSection: "X1",
   });
   const [newSubjects, setNewSubjects] = useState([newSubject()]);
@@ -160,9 +177,18 @@ export default function AdminExamResultPage() {
   const [notice, setNotice] = useState("");
 
   const loadAssessments = useCallback(async () => {
+    const requestedCourseCode = courseCode;
+    const requestSequence = ++listRequestSequenceRef.current;
     setLoadingList(true);
+    setError("");
     try {
       const result = await api.get("/admin/exam-result");
+      if (
+        requestSequence !== listRequestSequenceRef.current ||
+        currentCourseCodeRef.current !== requestedCourseCode ||
+        result.courseCode !== requestedCourseCode
+      )
+        return;
       const rows = result.assessments || [];
       setAssessments(rows);
       setSelectedId((current) =>
@@ -171,18 +197,43 @@ export default function AdminExamResultPage() {
           : rows[0]?.id || "",
       );
     } catch (requestError) {
-      setError(requestError.message || "Could not load assessments.");
+      if (
+        requestSequence === listRequestSequenceRef.current &&
+        currentCourseCodeRef.current === requestedCourseCode
+      )
+        setError(requestError.message || "Could not load assessments.");
     } finally {
-      setLoadingList(false);
+      if (requestSequence === listRequestSequenceRef.current)
+        setLoadingList(false);
     }
-  }, []);
+  }, [courseCode]);
+
+  useEffect(() => {
+    setAssessments([]);
+    setSelectedId("");
+    setDetail(null);
+    setLoadingList(true);
+    setLoadingDetail(false);
+    setError("");
+    setNotice("");
+    setNewForm((current) => ({
+      ...current,
+      semester: String(
+        currentCourse?.semester || (courseCode === OS_COURSE_CODE ? 4 : 3),
+      ),
+    }));
+  }, [courseCode, currentCourse?.semester]);
 
   useEffect(() => {
     loadAssessments();
   }, [loadAssessments, refreshKey]);
 
   useEffect(() => {
-    if (!selectedId) {
+    const selectedIsCurrent = assessments.some(
+      (assessment) =>
+        assessment.id === selectedId && assessment.courseCode === courseCode,
+    );
+    if (!selectedId || !selectedIsCurrent) {
       setDetail(null);
       setLoadingDetail(false);
       return undefined;
@@ -194,7 +245,7 @@ export default function AdminExamResultPage() {
     api
       .get(`/admin/exam-result/${selectedId}`)
       .then((result) => {
-        if (active) setDetail(result);
+        if (active && result.courseCode === courseCode) setDetail(result);
       })
       .catch((requestError) => {
         if (active)
@@ -206,7 +257,7 @@ export default function AdminExamResultPage() {
     return () => {
       active = false;
     };
-  }, [selectedId, refreshKey]);
+  }, [assessments, selectedId, refreshKey, courseCode]);
 
   useEffect(() => {
     if (!detail?.assessment) return;
@@ -219,7 +270,13 @@ export default function AdminExamResultPage() {
     );
   }, [detail?.assessment?.id, detail?.assessment?.updatedAt]);
 
-  const localMissing = useMemo(() => countLocalMissing(detail), [detail]);
+  const readyToPublish = useMemo(() => countReadyToPublish(detail), [detail]);
+  const publishedCount = useMemo(() => countPublished(detail), [detail]);
+  const editableStudentCount = useMemo(
+    () =>
+      (detail?.students || []).filter((student) => !student.publishedAt).length,
+    [detail],
+  );
 
   const createAssessment = async (event) => {
     event.preventDefault();
@@ -303,14 +360,18 @@ export default function AdminExamResultPage() {
       const result = await api.patch(
         `/admin/exam-result/${detail.assessment.id}/marks`,
         {
-          results: detail.students.map((student) => ({
-            studentId: student.id,
-            marks: student.marks,
-          })),
+          results: detail.students
+            .filter((student) => !student.publishedAt)
+            .map((student) => ({
+              studentId: student.id,
+              marks: student.marks,
+            })),
         },
       );
       setDetail(result);
-      setNotice("Student marks saved.");
+      setNotice(
+        "Unpublished student marks saved. Marks already published remain locked.",
+      );
     } catch (requestError) {
       setError(requestError.message || "Could not save marks.");
     } finally {
@@ -324,15 +385,15 @@ export default function AdminExamResultPage() {
       setError("There are no active students in this cohort.");
       return;
     }
-    if (localMissing > 0) {
+    if (readyToPublish === 0) {
       setError(
-        `Enter all marks first. ${localMissing} student subject mark${localMissing === 1 ? " is" : "s are"} still missing.`,
+        "Complete and save every subject mark for at least one student before publishing. Other students can be completed and published later.",
       );
       return;
     }
     if (
       !window.confirm(
-        `Publish “${detail.assessment.title}” for Semester ${detail.assessment.semester} · ${detail.assessment.classSection}? Students in this cohort will be able to see their marks.`,
+        `Publish the ${readyToPublish} student result${readyToPublish === 1 ? "" : "s"} that are complete in “${detail.assessment.title}”? Students without a complete result will remain hidden and can be published later.`,
       )
     )
       return;
@@ -341,14 +402,16 @@ export default function AdminExamResultPage() {
     setNotice("");
     try {
       await api.patch(`/admin/exam-result/${detail.assessment.id}/marks`, {
-        results: detail.students.map((student) => ({
-          studentId: student.id,
-          marks: student.marks,
-        })),
+        results: detail.students
+          .filter((student) => !student.publishedAt)
+          .map((student) => ({ studentId: student.id, marks: student.marks })),
       });
-      await api.post(`/admin/exam-result/${detail.assessment.id}/publish`, {});
+      const published = await api.post(
+        `/admin/exam-result/${detail.assessment.id}/publish`,
+        {},
+      );
       setNotice(
-        "Assessment published. Students in the selected cohort can now view their own marks.",
+        `${published.publishedNow} student result${published.publishedNow === 1 ? "" : "s"} published. Other students remain hidden until their marks are complete and published.`,
       );
       setRefreshKey((value) => value + 1);
     } catch (requestError) {
@@ -362,7 +425,7 @@ export default function AdminExamResultPage() {
     if (
       !detail?.assessment ||
       !window.confirm(
-        "Unpublish this assessment? Students will no longer see it until it is published again.",
+        "Unpublish all currently published student marks? They will become hidden, but saved marks will remain. You can publish complete rows again later.",
       )
     )
       return;
@@ -505,8 +568,11 @@ export default function AdminExamResultPage() {
                     }))
                   }
                 >
-                  <option value="3">Semester 3</option>
-                  <option value="5">Semester 5</option>
+                  {semesterOptions.map((semester) => (
+                    <option key={semester} value={semester}>
+                      Semester {semester}
+                    </option>
+                  ))}
                 </select>
               </label>
             </div>
@@ -628,7 +694,7 @@ export default function AdminExamResultPage() {
                   className={`exam-status exam-status-${detail.assessment.status}`}
                 >
                   {detail.assessment.status === "published"
-                    ? "Published"
+                    ? `${publishedCount}/${detail.studentCount} published`
                     : "Draft"}
                 </span>
               </div>
@@ -666,15 +732,16 @@ export default function AdminExamResultPage() {
                   <span className="eyebrow">STUDENT MARKS</span>
                   <h4>Enter marks</h4>
                   <p>
-                    Blank cells must be completed before publishing. Enter 0 for
-                    a zero mark.
+                    Complete each student’s subjects to publish that result. You
+                    can publish ready students now and finish the rest later.
+                    Enter 0 for a zero mark.
                   </p>
                 </div>
                 <span
-                  className={`exam-missing-count ${localMissing ? "has-missing" : "all-complete"}`}
+                  className={`exam-missing-count ${readyToPublish ? "all-complete" : "has-missing"}`}
                 >
                   {detail.studentCount
-                    ? `${localMissing} mark${localMissing === 1 ? "" : "s"} missing`
+                    ? `${publishedCount} published · ${readyToPublish} ready`
                     : "No students"}
                 </span>
               </div>
@@ -686,6 +753,7 @@ export default function AdminExamResultPage() {
                       <tr>
                         <th>Student</th>
                         <th>Student ID</th>
+                        <th>Publication</th>
                         {detail.assessment.subjects.map((subject) => (
                           <th key={subject.id}>
                             {subject.name}
@@ -696,11 +764,27 @@ export default function AdminExamResultPage() {
                     </thead>
                     <tbody>
                       {detail.students.map((student) => (
-                        <tr key={student.id}>
+                        <tr
+                          key={student.id}
+                          className={
+                            student.publishedAt ? "exam-mark-row-published" : ""
+                          }
+                        >
                           <td>
                             <b>{student.name}</b>
                           </td>
                           <td>{student.studentId || "—"}</td>
+                          <td>
+                            <span
+                              className={`exam-row-status ${student.publishedAt ? "is-published" : studentMarksComplete(student) ? "is-ready" : "is-in-progress"}`}
+                            >
+                              {student.publishedAt
+                                ? "Published"
+                                : studentMarksComplete(student)
+                                  ? "Ready"
+                                  : "In progress"}
+                            </span>
+                          </td>
                           {detail.assessment.subjects.map((subject, index) => {
                             const mark = student.marks[index];
                             return (
@@ -721,8 +805,7 @@ export default function AdminExamResultPage() {
                                     )
                                   }
                                   disabled={
-                                    busy ||
-                                    detail.assessment.status === "published"
+                                    busy || Boolean(student.publishedAt)
                                   }
                                 />
                               </td>
@@ -745,49 +828,49 @@ export default function AdminExamResultPage() {
               <div className="exam-detail-actions">
                 <div className="exam-action-note">
                   <CircleAlert size={14} />
-                  Publish saves the current marks and makes the assessment
-                  visible to its matching cohort only.
+                  Publishing releases only complete student rows. Incomplete
+                  rows stay private until ready.
                 </div>
                 <div className="exam-action-buttons">
-                  {detail.assessment.status === "draft" ? (
-                    <>
-                      <button
-                        className="button button-outline button-sm exam-delete-button"
-                        type="button"
-                        onClick={deleteDraft}
-                        disabled={busy}
-                      >
-                        <Trash2 size={14} /> Delete draft
-                      </button>
-                      <button
-                        className="button button-outline button-sm"
-                        type="button"
-                        onClick={saveMarks}
-                        disabled={busy || detail.students.length === 0}
-                      >
-                        <Save size={14} /> Save marks
-                      </button>
-                      <button
-                        className="button button-dark button-sm"
-                        type="button"
-                        onClick={publish}
-                        disabled={
-                          busy ||
-                          detail.students.length === 0 ||
-                          localMissing > 0
-                        }
-                      >
-                        <Send size={14} /> {busy ? "Working…" : "Publish"}
-                      </button>
-                    </>
-                  ) : (
+                  {detail.assessment.status === "draft" && (
+                    <button
+                      className="button button-outline button-sm exam-delete-button"
+                      type="button"
+                      onClick={deleteDraft}
+                      disabled={busy}
+                    >
+                      <Trash2 size={14} /> Delete draft
+                    </button>
+                  )}
+                  <button
+                    className="button button-outline button-sm"
+                    type="button"
+                    onClick={saveMarks}
+                    disabled={busy || editableStudentCount === 0}
+                  >
+                    <Save size={14} /> Save marks
+                  </button>
+                  <button
+                    className="button button-dark button-sm"
+                    type="button"
+                    onClick={publish}
+                    disabled={
+                      busy ||
+                      detail.students.length === 0 ||
+                      readyToPublish === 0
+                    }
+                  >
+                    <Send size={14} />{" "}
+                    {busy ? "Working…" : "Publish ready marks"}
+                  </button>
+                  {detail.assessment.status === "published" && (
                     <button
                       className="button button-outline button-sm"
                       type="button"
                       onClick={unpublish}
                       disabled={busy}
                     >
-                      <UnlockKeyhole size={14} /> Unpublish to edit
+                      <UnlockKeyhole size={14} /> Unpublish all
                     </button>
                   )}
                 </div>

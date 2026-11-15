@@ -1,23 +1,24 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const ModuleManualProgress = require("../src/models/ModuleManualProgress");
+const Practical = require("../src/models/Practical");
+const PracticalAttempt = require("../src/models/PracticalAttempt");
+const { OS_COURSE_CONTENT } = require("../src/config/constants");
 const {
   buildModuleCompletionEmail,
   sendModuleCompletionEmail,
+  moduleHasAllOfficialPracticalsApproved,
   processModuleCompletionEmail,
   processDueModuleCompletionEmails,
 } = require("../src/services/moduleCompletionEmailService");
-const { clearTokenCache } = require("../src/services/gmailApiMailer");
-const {
-  createGmailApiFetchStub,
-  decodeRawMessage,
-} = require("./helpers/gmailApiMocks");
+const { createSmtpTransportStub } = require("./helpers/smtpMocks");
 
 const envKeys = [
-  "GMAIL_CLIENT_ID",
-  "GMAIL_CLIENT_SECRET",
-  "GMAIL_REFRESH_TOKEN",
-  "GMAIL_USER",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_SECURE",
+  "SMTP_USER",
+  "SMTP_PASSWORD",
   "REPORT_FROM_EMAIL",
   "CLIENT_URL",
 ];
@@ -29,12 +30,13 @@ function restoreEnv(original) {
   }
 }
 
-function configureGmailApi(prefix = "module-test") {
-  process.env.GMAIL_CLIENT_ID = `${prefix}-client-id`;
-  process.env.GMAIL_CLIENT_SECRET = `${prefix}-client-secret`;
-  process.env.GMAIL_REFRESH_TOKEN = `${prefix}-refresh-token`;
-  process.env.GMAIL_USER = "portal@example.test";
-  process.env.REPORT_FROM_EMAIL = "GMIU DBMS Portal <portal@example.test>";
+function configureSmtp(prefix = "module-test") {
+  process.env.SMTP_HOST = "smtp.gmail.com";
+  process.env.SMTP_PORT = "587";
+  process.env.SMTP_SECURE = "false";
+  process.env.SMTP_USER = `${prefix}@example.test`;
+  process.env.SMTP_PASSWORD = `${prefix}-app-password`;
+  process.env.REPORT_FROM_EMAIL = `GMIU DBMS Portal <${prefix}@example.test>`;
   process.env.CLIENT_URL = "https://dbms-portal.onrender.com";
 }
 
@@ -61,11 +63,11 @@ test("module-completion email states all official practicals are approved and es
   const original = Object.fromEntries(
     envKeys.map((key) => [key, process.env[key]]),
   );
-  configureGmailApi();
+  configureSmtp();
   try {
     const email = buildModuleCompletionEmail(moduleEmailInput());
     assert.deepEqual(email.to, ["student@example.test"]);
-    assert.equal(email.from, "GMIU DBMS Portal <portal@example.test>");
+    assert.equal(email.from, "GMIU DBMS Portal <module-test@example.test>");
     assert.match(
       email.messageId,
       /^<module-completion\.[a-f0-9]{32}@example\.test>$/,
@@ -84,8 +86,94 @@ test("module-completion email states all official practicals are approved and es
     assert.match(email.html, /&lt;Yug &amp; Co&gt;/);
     assert.match(email.html, /Data &lt;Integrity&gt;/);
     assert.doesNotMatch(email.html, /<Yug/);
+    const osEmail = buildModuleCompletionEmail({
+      ...moduleEmailInput(),
+      progress: {
+        completedPracticals: 8,
+        totalPracticals: 8,
+        courseCode: OS_COURSE_CONTENT.course.courseCode,
+      },
+    });
+    assert.match(osEmail.text, /GMIU Operating Systems Learning Portal/);
+    assert.match(osEmail.html, /OPERATING SYSTEMS LEARNING PORTAL/);
   } finally {
     restoreEnv(original);
+  }
+});
+
+test("module-completion notices require admin approval for every practical in the selected course", async () => {
+  const originalFind = Practical.find;
+  const originalDistinct = PracticalAttempt.distinct;
+  const OS_CODE = OS_COURSE_CONTENT.course.courseCode;
+  let practicalFilter;
+  let attemptFilter;
+  let approvedIds = ["os-practical-1"];
+  Practical.find = (filter) => {
+    practicalFilter = filter;
+    return {
+      select() {
+        return this;
+      },
+      async lean() {
+        return [{ _id: "os-practical-1" }, { _id: "os-practical-2" }];
+      },
+    };
+  };
+  PracticalAttempt.distinct = async (field, filter) => {
+    assert.equal(field, "practicalId");
+    attemptFilter = filter;
+    return approvedIds;
+  };
+  try {
+    assert.equal(
+      await moduleHasAllOfficialPracticalsApproved({
+        studentId: "student-os",
+        moduleId: "module-os",
+        courseCode: OS_CODE,
+        expectedCount: 2,
+      }),
+      false,
+      "a single approved practical is not a complete module",
+    );
+    assert.deepEqual(practicalFilter, {
+      $and: [
+        { moduleId: "module-os", isActive: true },
+        { courseCode: OS_CODE },
+      ],
+    });
+    assert.deepEqual(attemptFilter, {
+      $and: [
+        {
+          studentId: "student-os",
+          practicalId: { $in: ["os-practical-1", "os-practical-2"] },
+          reviewStatus: "approved",
+        },
+        { courseCode: OS_CODE },
+      ],
+    });
+    approvedIds = ["os-practical-1", "os-practical-2"];
+    assert.equal(
+      await moduleHasAllOfficialPracticalsApproved({
+        studentId: "student-os",
+        moduleId: "module-os",
+        courseCode: OS_CODE,
+        expectedCount: 2,
+      }),
+      true,
+    );
+    assert.equal(
+      await moduleHasAllOfficialPracticalsApproved({
+        studentId: "student-os",
+        moduleId: "module-os",
+        courseCode: OS_CODE,
+        expectedCount: 3,
+      }),
+      false,
+      "the queued total must match the live official practical count",
+    );
+  } finally {
+    Practical.find = originalFind;
+    PracticalAttempt.distinct = originalDistinct;
   }
 });
 
@@ -108,63 +196,49 @@ test("module-completion email refuses to send until every official practical is 
   }
 });
 
-test("Gmail API sends module email to the saved student address", async () => {
+test("Gmail SMTP sends the module email to the saved student address", async () => {
   const originalEnv = Object.fromEntries(
     envKeys.map((key) => [key, process.env[key]]),
   );
-  const originalFetch = global.fetch;
-  configureGmailApi("module-send");
-  clearTokenCache();
-  const mock = createGmailApiFetchStub();
-  global.fetch = mock.fetch;
+  configureSmtp("module-send");
+  const mock = createSmtpTransportStub();
   try {
     const result = await sendModuleCompletionEmail(moduleEmailInput());
-    assert.equal(result.id, "gmail-sent-id");
-    assert.equal(
-      mock.calls.length,
-      2,
-      "refresh token exchange followed by Gmail API send",
-    );
-    assert.match(mock.calls[0].url, /oauth2\.googleapis\.com\/token$/);
-    assert.equal(mock.calls[0].options.method, "POST");
-    assert.equal(
-      mock.calls[1].url,
-      "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-    );
-    assert.equal(
-      mock.calls[1].options.headers.Authorization,
-      "Bearer test-google-access-token",
-    );
-    const rawMessage = decodeRawMessage(mock.calls[1]);
-    assert.match(rawMessage, /To: student@example\.test/i);
-    assert.match(rawMessage, /From: GMIU DBMS Portal <portal@example\.test>/i);
-    assert.match(rawMessage, /Congratulations! All 8 official practicals/);
+    assert.equal(result.response, "250 2.0.0 Message accepted for delivery");
+    assert.equal(mock.calls.length, 1);
+    assert.deepEqual(mock.transportOptions[0], {
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "module-send@example.test",
+        pass: "module-send-app-password",
+      },
+    });
+    const message = mock.calls[0];
+    assert.deepEqual(message.to, ["student@example.test"]);
+    assert.equal(message.from, "GMIU DBMS Portal <module-send@example.test>");
+    assert.match(message.text, /Congratulations! All 8 official practicals/);
     assert.match(
-      rawMessage,
-      /Message-ID:\s*<module-completion\.[a-f0-9]{32}@example\.test>/i,
+      message.messageId,
+      /^<module-completion\.[a-f0-9]{32}@example\.test>$/,
     );
   } finally {
-    global.fetch = originalFetch;
-    clearTokenCache();
+    mock.restore();
     restoreEnv(originalEnv);
   }
 });
 
-test("module-completion email fails safely when Gmail API credentials are missing", async () => {
+test("module-completion email fails safely when SMTP credentials are missing", async () => {
   const originalEnv = Object.fromEntries(
     envKeys.map((key) => [key, process.env[key]]),
   );
-  for (const key of [
-    "GMAIL_CLIENT_ID",
-    "GMAIL_CLIENT_SECRET",
-    "GMAIL_REFRESH_TOKEN",
-    "GMAIL_USER",
-  ])
+  for (const key of ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD"])
     delete process.env[key];
   try {
     await assert.rejects(
       sendModuleCompletionEmail(moduleEmailInput()),
-      /gmail_api_not_configured/,
+      /smtp_not_configured/,
     );
   } finally {
     restoreEnv(originalEnv);
@@ -179,7 +253,7 @@ test("module worker never sends legacy pending completions without a new queue t
   const originalFindOneAndUpdate = ModuleManualProgress.findOneAndUpdate;
   let dueFilter;
   let claimFilter;
-  configureGmailApi("module-legacy");
+  configureSmtp("module-legacy");
   ModuleManualProgress.find = (filter) => {
     dueFilter = filter;
     return {
@@ -218,7 +292,6 @@ test("module worker never sends legacy pending completions without a new queue t
   } finally {
     ModuleManualProgress.find = originalFind;
     ModuleManualProgress.findOneAndUpdate = originalFindOneAndUpdate;
-    clearTokenCache();
     restoreEnv(originalEnv);
   }
 });
