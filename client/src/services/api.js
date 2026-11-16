@@ -1,13 +1,18 @@
+import { readSelectedCourseCode } from "./courseSelection.js";
+
 async function request(path, options = {}) {
+  const { headers: optionHeaders, ...fetchOptions } = options;
+  const headers = {
+    ...(fetchOptions.body instanceof FormData
+      ? {}
+      : { "Content-Type": "application/json" }),
+    "x-course-code": readSelectedCourseCode(),
+    ...optionHeaders,
+  };
   const response = await fetch(path.startsWith("/api") ? path : `/api${path}`, {
     credentials: "include",
-    headers: {
-      ...(options.body instanceof FormData
-        ? {}
-        : { "Content-Type": "application/json" }),
-      ...options.headers,
-    },
-    ...options,
+    ...fetchOptions,
+    headers,
   });
   if (response.status === 204) return null;
   const type = response.headers.get("content-type") || "";
@@ -46,7 +51,10 @@ export const api = {
   download: async (path, fileName = "export.csv") => {
     const response = await fetch(
       path.startsWith("/api") ? path : `/api${path}`,
-      { credentials: "include" },
+      {
+        credentials: "include",
+        headers: { "x-course-code": readSelectedCourseCode() },
+      },
     );
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));

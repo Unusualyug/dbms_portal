@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-test("API requests and CSV downloads send the selected course header for both courses", async () => {
+test("API requests and CSV downloads send the selected course in both query and header for both courses", async () => {
   const previousWindow = global.window;
   const previousDocument = global.document;
   const previousFetch = global.fetch;
@@ -38,15 +38,27 @@ test("API requests and CSV downloads send the selected course header for both co
       [OS_COURSE_CODE, "os"],
     ]) {
       saveSelectedCourseCode(courseCode);
-      await api.get("/student/progress");
+      await api.get("/student/progress?page=2&limit=10");
       await api.download("/admin/export/activity", `${shortName}-activity.csv`);
     }
 
     assert.deepEqual(calls, [
-      { url: "/api/student/progress", courseCode: DEFAULT_COURSE_CODE },
-      { url: "/api/admin/export/activity", courseCode: DEFAULT_COURSE_CODE },
-      { url: "/api/student/progress", courseCode: OS_COURSE_CODE },
-      { url: "/api/admin/export/activity", courseCode: OS_COURSE_CODE },
+      {
+        url: `/api/student/progress?page=2&limit=10&courseCode=${DEFAULT_COURSE_CODE}`,
+        courseCode: DEFAULT_COURSE_CODE,
+      },
+      {
+        url: `/api/admin/export/activity?courseCode=${DEFAULT_COURSE_CODE}`,
+        courseCode: DEFAULT_COURSE_CODE,
+      },
+      {
+        url: `/api/student/progress?page=2&limit=10&courseCode=${OS_COURSE_CODE}`,
+        courseCode: OS_COURSE_CODE,
+      },
+      {
+        url: `/api/admin/export/activity?courseCode=${OS_COURSE_CODE}`,
+        courseCode: OS_COURSE_CODE,
+      },
     ]);
     assert.deepEqual(clickedFiles, ["dbms-activity.csv", "os-activity.csv"]);
   } finally {

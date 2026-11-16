@@ -6,6 +6,7 @@ const {
 } = require("../config/constants");
 
 function attachCourseContext(req, res, next) {
+  res.vary("x-course-code");
   const requested =
     req.get("x-course-code") || req.query.courseCode || COURSE_CODE;
   const courseCode = normalizeCourseCode(requested);
