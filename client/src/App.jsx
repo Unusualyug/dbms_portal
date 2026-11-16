@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import PortalLayout from "./layouts/PortalLayout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { CourseProvider } from "./context/CourseContext.jsx";
 
 const LandingPage = lazy(() => import("./pages/LandingPage.jsx"));
 const LoginPage = lazy(() => import("./pages/LoginPage.jsx"));
@@ -60,44 +61,46 @@ function LoadingPage() {
 
 export default function App() {
   return (
-    <Suspense fallback={<LoadingPage />}>
-      <Routes>
-        <Route path="/" element={<HomeRedirect />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route element={<ProtectedRoute role="student" />}>
-          <Route path="/student" element={<PortalLayout role="student" />}>
-            <Route index element={<StudentDashboard />} />
-            <Route path="modules" element={<ModulesPage />} />
-            <Route path="modules/:moduleId" element={<ModuleDetailPage />} />
-            <Route path="topics/:topicId" element={<TopicDetailPage />} />
-            <Route path="questions" element={<QuestionsPage />} />
-            <Route path="lab" element={<PracticalLabPage />} />
-            <Route path="arena" element={<PracticeArenaPage />} />
-            <Route path="progress" element={<ProgressPage />} />
-            <Route path="hall-of-fame" element={<HallOfFamePage />} />
-            <Route path="support" element={<StudentSupportPage />} />
-            <Route path="exam-result" element={<StudentExamResultPage />} />
-            <Route path="profile" element={<ProfilePage />} />
+    <CourseProvider>
+      <Suspense fallback={<LoadingPage />}>
+        <Routes>
+          <Route path="/" element={<HomeRedirect />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route element={<ProtectedRoute role="student" />}>
+            <Route path="/student" element={<PortalLayout role="student" />}>
+              <Route index element={<StudentDashboard />} />
+              <Route path="modules" element={<ModulesPage />} />
+              <Route path="modules/:moduleId" element={<ModuleDetailPage />} />
+              <Route path="topics/:topicId" element={<TopicDetailPage />} />
+              <Route path="questions" element={<QuestionsPage />} />
+              <Route path="lab" element={<PracticalLabPage />} />
+              <Route path="arena" element={<PracticeArenaPage />} />
+              <Route path="progress" element={<ProgressPage />} />
+              <Route path="hall-of-fame" element={<HallOfFamePage />} />
+              <Route path="support" element={<StudentSupportPage />} />
+              <Route path="exam-result" element={<StudentExamResultPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+            </Route>
           </Route>
-        </Route>
-        <Route element={<ProtectedRoute role="admin" />}>
-          <Route path="/admin" element={<PortalLayout role="admin" />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="students" element={<AdminStudentsPage />} />
-            <Route path="students/:id" element={<AdminStudentDetailPage />} />
-            <Route path="activity" element={<AdminActivityPage />} />
-            <Route path="analytics" element={<AdminAnalyticsPage />} />
-            <Route path="content" element={<AdminContentPage />} />
-            <Route path="submissions" element={<AdminSubmissionsPage />} />
-            <Route path="support" element={<AdminSupportPage />} />
-            <Route path="exam-result" element={<AdminExamResultPage />} />
+          <Route element={<ProtectedRoute role="admin" />}>
+            <Route path="/admin" element={<PortalLayout role="admin" />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="students" element={<AdminStudentsPage />} />
+              <Route path="students/:id" element={<AdminStudentDetailPage />} />
+              <Route path="activity" element={<AdminActivityPage />} />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
+              <Route path="content" element={<AdminContentPage />} />
+              <Route path="submissions" element={<AdminSubmissionsPage />} />
+              <Route path="support" element={<AdminSupportPage />} />
+              <Route path="exam-result" element={<AdminExamResultPage />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </CourseProvider>
   );
 }
